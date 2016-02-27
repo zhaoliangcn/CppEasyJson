@@ -1,0 +1,10 @@
+*.suo
+EasyJson.ilk
+*.pdb
+*.log
+*.obj
+*.idb
+*.tlog
+*.lastbuildstate
+*.sdf
+*.opensdf
