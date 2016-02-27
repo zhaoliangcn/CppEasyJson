@@ -509,7 +509,13 @@ JsonValue *  CppEasyJson::GetValue(JsonNode * node, char * name)
 		for (int i = 0; i < node->values.size(); i++)
 		{
 			val = node->values.at(i);
-			break;
+			if (val)
+			{
+				if (val->name == name)
+				{
+					break;
+				}
+			}		
 		}
 	}
 	return val;
