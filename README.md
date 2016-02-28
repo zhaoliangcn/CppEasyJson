@@ -23,14 +23,21 @@ a sample json :
     ]
   }
 }
+
 char * ourjsonstring="";
 
 CppEasyJson ejson ;
+
 ejson.ParseString(ourjsonstring);
+
 std::string value;
+
 ejson.GetValue("rootnode.subnode",value);
+
 int ivalue;
+
 ejson.GetValue("rootnode.subnodearray[0],ivalue);
+
 
 this is an Easy Way!
 
