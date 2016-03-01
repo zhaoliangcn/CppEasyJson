@@ -953,7 +953,7 @@ JsonValue *JsonLex::BuildJsonValue(std::string::iterator & it, JsonNode * parent
 			}		
 			else
 			{
-				haskey = false;
+				haskey = false;				
 			}
 			value->type = VALUE_NULL;
 			token =GetNextToken(it,false);
@@ -986,6 +986,10 @@ JsonValue *JsonLex::BuildJsonValue(std::string::iterator & it, JsonNode * parent
 	}
 	if (!haskey)
 	{
+		if (!value->str.empty())
+		{
+			//printf("Error Json Value's Name must be string");
+		}
 		AssignStringToJsonValue(value, value->name);
 		value->name = "";		
 	}
