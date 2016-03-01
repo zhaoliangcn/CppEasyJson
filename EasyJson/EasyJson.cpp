@@ -94,6 +94,8 @@ void Test11()
 	bool bvalue;
 	ejson.GetValue("abc.x", bvalue);
 	printf("%s\n", bvalue ? "true" : "false");
+	printf("%s\n", UToA(ejson.ToString()).c_str());
+	ejson.Release();
 	//char cvalue[256] = { 0 };
 	//ejson.GetValue("key5", cvalue, 256);
 	//printf("%s\n", cvalue);
@@ -279,9 +281,10 @@ void Test13()
 }
 int main()
 {
-	Test20();
-	Test19();
-	Test15();
+	//Test20();
+	//Test19();
+	//Test15();
+	Test11();
 	/*
 	//Test18();
 	Test17();
@@ -299,7 +302,7 @@ int main()
 	Test9();
 	Test10();
 	Test33();
-	Test11();
+	
 	Test12();
 	Test13();
 	Test14();

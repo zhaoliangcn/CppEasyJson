@@ -770,12 +770,15 @@ std::string JsonNode::toString()
 	{
 		temp += "[";
 	}
-	for (int i = 0; i < values.size(); i++)
+	if (values.size() > 0)
 	{
-		temp += values.at(i)->ToString();
-		temp += ",";
+		for (int i = 0; i < values.size(); i++)
+		{
+			temp += values.at(i)->ToString();
+			temp += ",";
+		}
+		temp = temp.substr(0, temp.length() - 1);
 	}
-	temp = temp.substr(0, temp.length() - 1);
 	if (type == NODE_OBJECT)
 	{
 		temp += "}";
