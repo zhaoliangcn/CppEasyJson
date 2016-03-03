@@ -80,6 +80,11 @@ void Test19()
 		ejson.AppendValue(root, "number1", 1024);
 		ejson.AppendValue(root, "", 1048576);
 		ejson.AppendValue(root, "", "这个字符串没有KEY");
+		ejson.AppendValue(root, "stringwithEscape", "string\r\b\n\t\f\\");
+		std::string temp;
+		temp += char(0x1F);
+		temp += char(0x11);
+		ejson.AppendValue(root, "controlstring", (char *)temp.c_str());
 
 		JsonNode * node = ejson.CreateJsonNode(NODE_OBJECT);
 		ejson.AppendValue(node, "hahaha", "json");
@@ -322,7 +327,7 @@ void Test13()
 }
 int main()
 {
-	
+	Test19();
 	Test25();
 	//Test24();
 	//Test23();

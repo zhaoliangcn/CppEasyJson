@@ -814,7 +814,72 @@ std::string JsonValue::ToString()
 			temp += ":";
 		}
 		temp += "\"";
-		temp += str;
+		std::string escapedstr;
+		std::string::iterator it = str.begin();
+		while (it != str.end())
+		{
+			if (*it == JsonDoubleQuote)
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += JsonDoubleQuote;
+				it++;
+				continue;
+			}
+			else if(*it == '\b')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += 'b';
+				it++;
+				continue;
+			}
+			else if (*it == '\r')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += 'r';
+				it++;
+				continue;
+			}
+			else if (*it == '\f')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += 'f';
+				it++;
+				continue;
+			}
+			else if (*it == '\t')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += 't';
+				it++;
+				continue;
+			}
+			else if (*it == '\n')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += 'n';
+				it++;
+				continue;
+			}
+			else if (*it == '\\')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += '\\';
+				it++;
+				continue;
+			}			
+			else if (*it > 0 && *it <= 0x1F)
+			{
+				char buffer[5] = { 0 };
+				sprintf(buffer, "%04X", static_cast<int>(*it));
+				escapedstr += "\\u";
+				escapedstr += buffer;
+				it++;
+				continue;
+			}
+			escapedstr += *it;
+			it++;
+		}
+		temp += escapedstr;
 		temp += "\"";
 	}
 	else if (type == VALUE_OBJECT)
