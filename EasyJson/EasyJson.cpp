@@ -20,10 +20,51 @@ const char * JSONSTRING10 = "{\"key1\": true,\"key2\":false,\"key3\":333,\"key4\
 const char * JSONSTRING11 = "{\"abc\":{\"x\": true,\"y\": false},\"key\":[1,2,true,false,4,4.90241,{},22013,14],\"xxx\":{\"y\":{ },\"z\":{ },\"abc\":{},\"def\":null},\"qwr\": [48559,{},\"abc\",true]}";
 const char * JSONSTRING12 = "{ \"type\": \"FeatureCollection\",\"features\" : [ { \"type\": \"Feature\",\"geometry\" : {\"type\": \"Point\", \"coordinates\" : [102.0, 0.5]},\"properties\" : {\"prop0\": \"value0\"}},{ \"type\": \"Feature\",\"geometry\" : {\"type\": \"LineString\",\"coordinates\" : [	[102.0, 0.0],[103.0, 1.0],[104.0, 0.0],[105.0, 1.0]	]},\"properties\": {\"prop0\": \"value0\",\"prop1\" : 0.0	}},{\"type\": \"Feature\",\"geometry\" : {\"type\": \"Polygon\",\"coordinates\" : [	[[100.0, 0.0],[101.0, 0.0],[101.0, 1.0],[100.0, 1.0],[100.0, 0.0]]]},\"properties\": {\"prop0\": \"value0\",\"prop1\" : {\"this\": \"that\"}}}]}";
 const char * JSONSTRING14 = "{\"jsontext\": \"{\\\"object with 1 member\\\":[\\\"array with 1 element\\\"]}\" }";
+void Test25()
+{
+	CppEasyJson ejson;
+	ejson.ParseFile("F:\\CppEasyJson\\good\\c-comment.json");
+	printf("%s", UToA(ejson.ToString()).c_str());
+	ejson.Release();
+}
+void Test24()
+{
+	CppEasyJson ejson;
+	ejson.ParseFile("F:\\CppEasyJson\\good\\complex0.json");
+	printf("%s", UToA(ejson.ToString()).c_str());
+	ejson.Release();
+}
+
+
+void Test23()
+{
+	CppEasyJson ejson;
+	ejson.ParseFile("F:\\CppEasyJson\\good\\multiobj.json");
+	printf("%s", UToA(ejson.ToString()).c_str());
+	ejson.Release();
+}
+
+void Test22()
+{
+	CppEasyJson ejson;
+	ejson.ParseFile("F:\\CppEasyJson\\good\\utf8.json");
+	printf("%s", UToA(ejson.ToString()).c_str());
+	ejson.Release();
+}
+
+void Test21()
+{
+	CppEasyJson ejson;
+	ejson.ParseFile("F:\\CppEasyJson\\good\\yaml-comment.json");
+	printf("%s", UToA(ejson.ToString()).c_str());
+	ejson.Release();
+}
+
 void Test20()
 {
 	CppEasyJson ejson;
 	ejson.ParseString("{abcd:1234}");
+	printf("%s", UToA(ejson.ToString()).c_str());
 	ejson.Release();
 }
 void Test19()
@@ -281,10 +322,16 @@ void Test13()
 }
 int main()
 {
+	
+	Test25();
+	//Test24();
+	//Test23();
+	//Test22();
+	//Test21();
 	//Test20();
 	//Test19();
 	//Test15();
-	Test11();
+	//Test11();
 	/*
 	//Test18();
 	Test17();
