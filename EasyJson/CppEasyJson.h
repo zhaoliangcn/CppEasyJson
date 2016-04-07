@@ -91,6 +91,7 @@ public:
 	bool GetValue(const char* nodepath, JsonValue ** jsvalue);
 	bool SetValue(const char* nodepath, JsonValue * newjsvalue);
 	bool DelValue(const char* nodepath);
+	JsonNode * GetNode(const char* nodepath);
 
 	//按节点逐层访问方式
 	bool AppendValue(JsonNode * node, char * name, char * value);
@@ -104,6 +105,7 @@ public:
 	JsonValue *  GetValue(JsonNode * node, int index);
 	bool DelValue(JsonNode * node, char * name);
 	bool DelValue(JsonNode * node, int index);
+	
 
 	JsonNode *  CreateJsonNode(JsonNodeType type);
 	JsonNode * GetRoot();

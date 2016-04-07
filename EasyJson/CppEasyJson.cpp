@@ -464,7 +464,7 @@ bool CppEasyJson::DelValue(JsonNode * node, char * name)
 	bool bret = false;
 	if (node && name)
 	{
-		for (int i = 0; i < node->values.size(); i++)
+		for (size_t i = 0; i < node->values.size(); i++)
 		{
 			JsonValue * val = node->values.at(i);
 			if (val)
@@ -506,7 +506,7 @@ JsonValue *  CppEasyJson::GetValue(JsonNode * node, char * name)
 	JsonValue * val = NULL;
 	if (node && name)
 	{
-		for (int i = 0; i < node->values.size(); i++)
+		for (size_t i = 0; i < node->values.size(); i++)
 		{
 			val = node->values.at(i);
 			if (val)
@@ -633,7 +633,14 @@ bool CppEasyJson::GetValue(const char * nodepath, JsonValue ** jsvalue)
 	}
 	return bret;
 }
+JsonNode * CppEasyJson::GetNode(const char* nodepath)
+{
+	int index = -1;
+	std::string keyname;
+	JsonNode * node = FindNodeInternal(nodepath, jsonroot, index, keyname);;
+	return node;
 
+}
 void CppEasyJson::Release()
 {
 	if (jsonroot)
@@ -772,7 +779,7 @@ std::string JsonNode::toString()
 	}
 	if (values.size() > 0)
 	{
-		for (int i = 0; i < values.size(); i++)
+		for (size_t i = 0; i < values.size(); i++)
 		{
 			temp += values.at(i)->ToString();
 			temp += ",";
