@@ -821,7 +821,72 @@ std::string JsonValue::ToString()
 			temp += ":";
 		}
 		temp += "\"";
-		temp += str;
+		std::string escapedstr;
+		std::string::iterator it = str.begin();
+		while (it != str.end())
+		{
+			if (*it == JsonDoubleQuote)
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += JsonDoubleQuote;
+				it++;
+				continue;
+			}
+			else if(*it == '\b')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += 'b';
+				it++;
+				continue;
+			}
+			else if (*it == '\r')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += 'r';
+				it++;
+				continue;
+			}
+			else if (*it == '\f')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += 'f';
+				it++;
+				continue;
+			}
+			else if (*it == '\t')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += 't';
+				it++;
+				continue;
+			}
+			else if (*it == '\n')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += 'n';
+				it++;
+				continue;
+			}
+			else if (*it == '\\')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += '\\';
+				it++;
+				continue;
+			}			
+			else if (*it > 0 && *it <= 0x1F)
+			{
+				char buffer[5] = { 0 };
+				sprintf(buffer, "%04X", static_cast<int>(*it));
+				escapedstr += "\\u";
+				escapedstr += buffer;
+				it++;
+				continue;
+			}
+			escapedstr += *it;
+			it++;
+		}
+		temp += escapedstr;
 		temp += "\"";
 	}
 	else if (type == VALUE_OBJECT)
@@ -870,7 +935,7 @@ JsonLex::~JsonLex()
 
 bool JsonLex::ParseString(const char * jsonstring, JsonNode **root)
 {
-	bool bret = false;
+	bool bret = false;	
 	json = AToU(jsonstring);
 	std::string::iterator it = json.begin();
 	while (it != json.end())
@@ -939,7 +1004,8 @@ JsonValue *JsonLex::BuildJsonValue(std::string::iterator & it, JsonNode * parent
 			JsonDoubleQuoteMeet++;
 			if (!value->name.empty())
 				value->type = VALUE_STRING;		
-			if(JsonDoubleQuoteMeet%2==0)
+			if((JsonDoubleQuoteMeet&0x01)==0x0) //should be faster
+			//if(JsonDoubleQuoteMeet%2==0)
 				token = GetNextToken(it, false);
 			else
 				token = GetNextToken(it,true);
@@ -1067,7 +1133,8 @@ JsonNode * JsonLex::BulidJsonNode(std::string::iterator & it, JsonNode * parentn
 
 void JsonLex::GoCommentEnd(std::string::iterator & it, std::string commentstyle)
 {
-	if (commentstyle == "//")                            //cpp style
+	if (commentstyle == "//" ||                         //cpp style
+		commentstyle.at(0) == JsonHash)                    //yaml style                       
 	{
 		while (it != json.end())
 		{
@@ -1102,7 +1169,7 @@ void JsonLex::GoCommentEnd(std::string::iterator & it, std::string commentstyle)
 bool JsonLex::TokenIsComment(std::string token)
 {
 	bool bret = false;
-	if (token == "//" || token == "/*" || token == "*/")
+	if (token == "//" || token == "/*" || token == "*/" ||token.at(0) == JsonHash)
 	{
 		bret = true;
 	}	
@@ -1166,7 +1233,8 @@ std::string JsonLex::GetNextToken(std::string::iterator & it, bool tonextJsonDou
 				*it == JsonLeftBracket ||
 				*it == JsonRightBracket ||
 				*it == JsonColon ||
-				*it == JsonComma)
+				*it == JsonComma ||
+				*it == JsonHash)
 			{
 				if (token.empty())
 				{
@@ -1199,7 +1267,7 @@ std::string JsonLex::GetNextToken(std::string::iterator & it, bool tonextJsonDou
 				{
 					token += (*it);
 				}
-			}
+			}			
 			else if ((*it) == JsonEscapeCharacter)
 			{
 				if (!token.empty())
@@ -1260,7 +1328,14 @@ std::string JsonLex::GetNextToken(std::string::iterator & it, bool tonextJsonDou
 				(char)(*it) == '\r'
 				)
 			{
-				;
+				if (!token.empty())
+				{
+					break;
+				}
+				else
+				{
+					;
+				}				
 			}
 			else
 			{
