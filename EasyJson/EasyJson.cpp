@@ -102,7 +102,12 @@ void Test19()
 	}
 	
 	printf("%s\n", UToA(ejson.ToString()).c_str());
+
+	CppEasyJson ejson2;
+	ejson2 = ejson;
+	printf("%s\n", UToA(ejson2.ToString()).c_str());
 	ejson.Release();
+	ejson2.Release();
 }
 
 void Test15()
@@ -328,7 +333,7 @@ void Test13()
 int main()
 {
 	Test19();
-	Test25();
+	//Test25();
 	//Test24();
 	//Test23();
 	//Test22();

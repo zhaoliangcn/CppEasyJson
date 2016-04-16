@@ -105,7 +105,9 @@ public:
 	JsonValue *  GetValue(JsonNode * node, int index);
 	bool DelValue(JsonNode * node, char * name);
 	bool DelValue(JsonNode * node, int index);
-	
+
+
+	CppEasyJson & operator = (CppEasyJson & fromjson);
 
 	JsonNode *  CreateJsonNode(JsonNodeType type);
 	JsonNode * GetRoot();

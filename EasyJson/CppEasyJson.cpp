@@ -532,6 +532,17 @@ JsonValue *  CppEasyJson::GetValue(JsonNode * node, int index)
 	}
 	return val;
 }
+CppEasyJson & CppEasyJson::operator=(CppEasyJson & fromjson)
+{
+	if (this->jsonroot)
+	{
+		this->Release();	
+	}
+	this->jsoncontent = "";
+	this->jsonlex.json = "";
+	this->ParseString(fromjson.ToString().c_str());
+	return *this;
+}
 JsonNode *  CppEasyJson::CreateJsonNode(JsonNodeType type)
 {
 	JsonNode * node = new JsonNode;
