@@ -543,6 +543,21 @@ CppEasyJson & CppEasyJson::operator=(CppEasyJson & fromjson)
 	this->ParseString(fromjson.ToString().c_str());
 	return *this;
 }
+CppEasyJson & CppEasyJson::operator=(JsonNode * fromjsonnode)
+{
+	if (fromjsonnode)
+	{
+		if (this->jsonroot)
+		{
+			this->Release();
+		}
+		this->jsoncontent = "";
+		this->jsonlex.json = ""; 
+		this->ParseString(fromjsonnode->toString().c_str());
+	}
+	return *this;
+
+}
 JsonNode *  CppEasyJson::CreateJsonNode(JsonNodeType type)
 {
 	JsonNode * node = new JsonNode;

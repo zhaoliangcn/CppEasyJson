@@ -108,6 +108,7 @@ public:
 
 
 	CppEasyJson & operator = (CppEasyJson & fromjson);
+	CppEasyJson & operator = (JsonNode * fromjsonnode);
 
 	JsonNode *  CreateJsonNode(JsonNodeType type);
 	JsonNode * GetRoot();

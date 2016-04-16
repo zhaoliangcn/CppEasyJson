@@ -106,8 +106,14 @@ void Test19()
 	CppEasyJson ejson2;
 	ejson2 = ejson;
 	printf("%s\n", UToA(ejson2.ToString()).c_str());
+
+	CppEasyJson ejson3;
+	ejson3 = ejson.GetNode("subnode");
+	printf("%s\n", UToA(ejson3.ToString()).c_str());
+
 	ejson.Release();
-	ejson2.Release();
+	ejson2.Release(); 
+	ejson3.Release();
 }
 
 void Test15()
