@@ -91,6 +91,16 @@ public:
 	bool GetValue(const char* nodepath, JsonValue ** jsvalue);
 	bool SetValue(const char* nodepath, JsonValue * newjsvalue);
 	bool DelValue(const char* nodepath);
+	JsonNode * GetNode(const char* nodepath);
+	bool AppendValue(const char* nodepath, char * name, char * value);
+	bool AppendValue(const char* nodepath, char * name, int value);
+	bool AppendValue(const char* nodepath, char * name, double value);
+	bool AppendValue(const char* nodepath, char * name, bool value);
+	bool AppendNullValue(const char* nodepath, char * name);
+	bool AppendObjectValue(const char* nodepath, char * name);
+	bool AppendArrayValue(const char* nodepath, char * name);
+
+
 
 	//按节点逐层访问方式
 	bool AppendValue(JsonNode * node, char * name, char * value);
@@ -104,6 +114,10 @@ public:
 	JsonValue *  GetValue(JsonNode * node, int index);
 	bool DelValue(JsonNode * node, char * name);
 	bool DelValue(JsonNode * node, int index);
+
+
+	CppEasyJson & operator = (CppEasyJson & fromjson);
+	CppEasyJson & operator = (JsonNode * fromjsonnode);
 
 	JsonNode *  CreateJsonNode(JsonNodeType type);
 	JsonNode * GetRoot();

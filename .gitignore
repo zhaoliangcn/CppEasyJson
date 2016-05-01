@@ -8,3 +8,8 @@ EasyJson.ilk
 *.lastbuildstate
 *.sdf
 *.opensdf
+EasyJson.VC.db
+*.opendb
+*.exe
+*.iobj
+*.ipdb

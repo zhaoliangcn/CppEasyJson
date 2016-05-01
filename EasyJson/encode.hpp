@@ -68,7 +68,7 @@ static inline int UTF2W(const char* src, std::wstring &t)
 	wchar_t *des = new wchar_t[size_d];
 	memset(des, 0, size_d * sizeof(wchar_t));
 
-	int s = 0, d = 0;
+	size_t s = 0, d = 0;
 	bool toomuchbyte = true; 
 
 	while (s < size_s && d < size_d)
@@ -182,7 +182,7 @@ static inline std::string W2UTF(std::wstring unistr)
 	std::string temp;
 	size_t len = unistr.length();
 	char buffer[8] = { 0 };
-	for (int i = 0; i<len; i++)
+	for (size_t i = 0; i<len; i++)
 	{
 		memset(buffer, 0, sizeof(buffer));
 		W2UTF(*unistr.substr(i, 1).begin(), buffer);
