@@ -331,6 +331,84 @@ bool CppEasyJson::DelValue(const char* nodepath)
 	}	
 	return bret;
 }
+bool CppEasyJson::AppendValue(const char * nodepath, char * name, bool value)
+{
+	bool bret = false;
+	JsonNode * node = GetNode(nodepath);
+	if (node)
+	{
+		JsonValue * val = new JsonValue;
+		if (val)
+		{
+			val->type = VALUE_BOOL;
+			val->vbl = value;
+			val->name = name;
+			if (val->vbl)
+			{
+				val->str = AToU("true");
+			}
+			else
+			{
+				val->str = AToU("false");
+			}
+			node->values.push_back(val);
+		}
+	}
+	return bret;
+}
+bool CppEasyJson::AppendNullValue(const char * nodepath, char * name)
+{
+	bool bret = false;
+	JsonNode * node = GetNode(nodepath);
+	if (node)
+	{
+		JsonValue * val = new JsonValue;
+		if (val)
+		{
+			val->name = AToU(name);
+			val->type = VALUE_NULL;
+			val->str = AToU("null");
+			node->values.push_back(val);
+		}
+	}
+	return bret;
+}
+bool CppEasyJson::AppendObjectValue(const char * nodepath, char * name)
+{
+	bool bret = false;
+	JsonNode * node = GetNode(nodepath);
+	if (node)
+	{
+		JsonNode * nodeobj =  CreateJsonNode(NODE_OBJECT);
+		JsonValue * val = new JsonValue;
+		if (val && nodeobj)
+		{
+			val->type = VALUE_OBJECT;
+			val->name = AToU(name);
+			val->node = nodeobj;
+			node->values.push_back(val);
+		}
+	}
+	return bret;
+}
+bool CppEasyJson::AppendArrayValue(const char * nodepath, char * name)
+{
+	bool bret = false;
+	JsonNode * node = GetNode(nodepath);
+	if (node)
+	{
+		JsonNode * objarray = CreateJsonNode(NODE_ARRAY);
+		JsonValue * val = new JsonValue;
+		if (val && objarray)
+		{
+			val->type = VALUE_ARRAY;
+			val->name = AToU(name);
+			val->node = objarray;
+			node->values.push_back(val);
+		}
+	}
+	return bret;
+}
 bool CppEasyJson::AppendValue(JsonNode * node, char * name,char * value)
 {
 	bool bret = false;
@@ -666,6 +744,64 @@ JsonNode * CppEasyJson::GetNode(const char* nodepath)
 	JsonNode * node = FindNodeInternal(nodepath, jsonroot, index, keyname);;
 	return node;
 
+}
+bool CppEasyJson::AppendValue(const char * nodepath, char * name, char * value)
+{
+	bool bret = false;
+	JsonNode * node = GetNode(nodepath);
+	if (node)
+	{
+		JsonValue * val = new JsonValue;
+		if (val)
+		{
+			val->type = VALUE_STRING;
+			val->name = AToU(name);
+			val->str = AToU(value);
+			node->values.push_back(val);
+		}
+
+	}
+	return bret;
+}
+bool CppEasyJson::AppendValue(const char * nodepath, char * name, int value)
+{
+	bool bret = false;
+	JsonNode * node = GetNode(nodepath);
+	if (node)
+	{
+		JsonValue * val = new JsonValue;
+		if (val)
+		{
+			val->type = VALUE_NUM_INT;
+			val->name = AToU(name);
+			val->vi = value;
+			char buffer[256] = { 0 };
+			val->str = AToU(itoa(value, buffer, 10));
+			node->values.push_back(val);
+		}
+
+	}
+	return bret;
+}
+bool CppEasyJson::AppendValue(const char * nodepath, char * name, double value)
+{
+	bool bret = false;
+	JsonNode * node = GetNode(nodepath);
+	if (node)
+	{
+		JsonValue * val = new JsonValue;
+		if (val)
+		{
+			val->type = VALUE_NUM_FLOAT;
+			val->vd = value;
+			val->name = AToU(name);
+			char buffer[256] = { 0 };
+			sprintf(buffer, "%f", value);
+			val->str = AToU(buffer);
+			node->values.push_back(val);
+		}
+	}
+	return bret;
 }
 void CppEasyJson::Release()
 {

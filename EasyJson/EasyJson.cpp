@@ -99,6 +99,10 @@ void Test19()
 		ejson.AppendArrayValue(root, "subnodearray", node2);
 
 
+		ejson.AppendValue("subnode", "number3", 27015);
+		ejson.AppendValue("subnodearray", "float3", 3.0);
+
+
 	}
 	
 	printf("%s\n", UToA(ejson.ToString()).c_str());
