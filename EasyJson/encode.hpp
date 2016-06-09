@@ -12,6 +12,10 @@ CppEasyJson 是开放源代码的软件，任何人都可以下载、使用、修改和重新发布，不必担心
 
 #ifdef _WIN32
 #include <Windows.h>
+#else
+#include <stdlib.h>
+#include <memory.h>
+#include <string.h>
 #endif
 
 static std::string	WToA(std::wstring sW)

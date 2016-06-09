@@ -7,6 +7,8 @@ CppEasyJson 是开放源代码的软件，任何人都可以下载、使用、修改和重新发布，不必担心
 */
 #include "CppEasyJson.h"
 #include "encode.hpp"
+#include "stdio.h"
+#include <string.h>
 CppEasyJson::CppEasyJson()
 {
 	jsonroot = NULL;
@@ -152,7 +154,7 @@ bool CppEasyJson::ParseFile(const char * jsonfile)
 		fseek(fh, 0, SEEK_SET);
 		nread = fread(bufp, 1, fsize, fh);
 		//if (nread== fsize) 
-			if (nread>0)
+		if (nread>0)
 		{
 			bret = ParseString(buf);
 		}		
@@ -220,7 +222,8 @@ bool CppEasyJson::SetValue(const char* nodepath, int  value)
 	val->type = VALUE_NUM_INT;		
 	val->vi =value ;
 	char buffer[256] = { 0 };
-	val->str = AToU(itoa(value, buffer, 10));
+	sprintf(buffer,"%d",value);
+	val->str = AToU(buffer);
 	bret = SetValue(nodepath, val);	
 	return bret;
 }
@@ -438,7 +441,8 @@ bool CppEasyJson::AppendValue(JsonNode * node, char * name, int value)
 			val->name = AToU(name);
 			val->vi = value;
 			char buffer[256] = { 0 };
-			val->str = AToU(itoa(value, buffer, 10));
+			sprintf(buffer,"%d",value);
+			val->str = AToU(buffer);
 			node->values.push_back(val);
 		}
 
@@ -503,7 +507,7 @@ bool CppEasyJson::AppendNullValue(JsonNode * node, char * name)
 		}
 	}
 	return bret;
-	
+
 }
 bool CppEasyJson::AppendObjectValue(JsonNode * node, char * name ,JsonNode *obj)
 {
@@ -655,7 +659,7 @@ bool CppEasyJson::SetRoot(JsonNode * node)
 		bret = true;
 	}
 	return bret;
-	
+
 }
 bool CppEasyJson::SetValue(const char* nodepath, JsonValue * newjsvalue)
 {
@@ -776,7 +780,8 @@ bool CppEasyJson::AppendValue(const char * nodepath, char * name, int value)
 			val->name = AToU(name);
 			val->vi = value;
 			char buffer[256] = { 0 };
-			val->str = AToU(itoa(value, buffer, 10));
+			sprintf(buffer,"%d",value);
+			val->str = AToU(buffer);
 			node->values.push_back(val);
 		}
 
@@ -835,7 +840,7 @@ JsonNode * CppEasyJson::FindNodeInternal(std::string path, JsonNode * parentnode
 		inode = FindNodeInternal(path, parentnode,index,keyname);
 		sub = sub.substr(pos + 1, sub.length() - pos - 1);
 		if(inode)
-		node = FindNodeInternal(sub, inode,index, keyname);
+			node = FindNodeInternal(sub, inode,index, keyname);
 	}
 	else
 	{
@@ -847,16 +852,16 @@ JsonNode * CppEasyJson::FindNodeInternal(std::string path, JsonNode * parentnode
 			if (pos1 != 0)
 			{
 				path = path.substr(0, pos1);
-				
+
 				inode = FindNodeInternal(path, parentnode, index, keyname);
 			}
 			else
 			{
 				inode = parentnode;
 			}
-			
+
 			if(inode)
-			//if (parentnode->type == NODE_OBJECT)
+				//if (parentnode->type == NODE_OBJECT)
 			{
 				keyname = sub;
 				index = atoi(sub.substr(pos1+1, pos2 - pos1 - 1).c_str());
@@ -872,7 +877,7 @@ JsonNode * CppEasyJson::FindNodeInternal(std::string path, JsonNode * parentnode
 					return inode2;
 				}
 			}
-			
+
 		}
 		else
 		{
@@ -895,7 +900,7 @@ JsonNode * CppEasyJson::FindNodeInternal(std::string path, JsonNode * parentnode
 						break;
 					}
 				}
-				
+
 			}
 			else if (parentnode->type == NODE_ARRAY)
 			{
@@ -1167,7 +1172,7 @@ JsonValue *JsonLex::BuildJsonValue(std::string::iterator & it, JsonNode * parent
 			if (!value->name.empty())
 				value->type = VALUE_STRING;		
 			if((JsonDoubleQuoteMeet&0x01)==0x0) //should be faster
-			//if(JsonDoubleQuoteMeet%2==0)
+				//if(JsonDoubleQuoteMeet%2==0)
 				token = GetNextToken(it, false);
 			else
 				token = GetNextToken(it,true);
@@ -1380,7 +1385,7 @@ std::string JsonLex::GetNextToken(std::string::iterator & it, bool tonextJsonDou
 					it++;
 				}				
 			}
-			
+
 		}
 		currenttoken = token;
 		return token;
@@ -1506,7 +1511,7 @@ std::string JsonLex::GetNextToken(std::string::iterator & it, bool tonextJsonDou
 			it++;
 		}
 	}
-	
+
 	currenttoken = token;
 	return token;
 }
