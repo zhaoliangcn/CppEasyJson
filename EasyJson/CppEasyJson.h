@@ -79,7 +79,7 @@ public:
 	//路径方式
 	//节点名称.子节点名称.数组节点名称[数组元素下表].值名称
 	bool GetValue(const char* nodepath, char * value, size_t valuesize);
-	bool GetValue(const char* nodepath, std::string value);
+	bool GetValue(const char* nodepath, std::string& value);
 	bool SetValue(const char* nodepath, char * value);
 	bool GetValue(const char* nodepath, int & value);
 	bool SetValue(const char* nodepath, int  value);

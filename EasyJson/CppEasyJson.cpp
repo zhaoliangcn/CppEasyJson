@@ -187,7 +187,7 @@ bool CppEasyJson::SetValue(const char* nodepath, char * value)
 	bret = SetValue(nodepath,val);	
 	return bret;
 }
-bool  CppEasyJson::GetValue(const char* nodepath, std::string value)
+bool  CppEasyJson::GetValue(const char* nodepath, std::string & value)
 {
 	bool bret = false;
 	JsonValue *val;
