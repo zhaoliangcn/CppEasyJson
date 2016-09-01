@@ -21,6 +21,10 @@ CppEasyJson::~CppEasyJson()
 
 bool CppEasyJson::ParseString(const char * jsonstring)
 {
+	if(jsonroot!=NULL)
+	{
+		Release();
+	}
 	return jsonlex.ParseString(jsonstring, &jsonroot);
 }
 void CppEasyJson::WellFormat(std::string &jsoncontent)
@@ -31,50 +35,47 @@ void CppEasyJson::WellFormat(std::string &jsoncontent)
 	int count = 0;
 	int tablecount = 0;
 	while (it != jsonstra.end())
-	{
+	{		
 		if (*it == '"')
-		{
-			count++;
-		}
-		if ((count & 0x01) == 0x01)
-		{
+		{		
 			jsoncontent += *it;
 		}
 		else
 		{
-			if (*it == '{')
+			if((*it == '{')||(*it == '['))
 			{
-				tablecount++;
-				jsoncontent += "\r\n";
-				for (int i = 0; i < tablecount; i++)
+					
+				if(!jsoncontent.empty())
 				{
-					jsoncontent += "\t";
+					jsoncontent += "\r\n";											
+					for (int i = 0; i < tablecount; i++)
+					{
+						jsoncontent += "\t";
+					}				
+					jsoncontent += *it;
+					jsoncontent += "\r\n";
+					tablecount++;	
+					for (int i = 0; i < tablecount; i++)
+					{
+						jsoncontent += "\t";
+					}
 				}
-				jsoncontent += *it;
-				jsoncontent += "\r\n";
-				for (int i = 0; i < tablecount; i++)
+				else
 				{
-					jsoncontent += "\t";
+					jsoncontent += *it;
+					jsoncontent += "\r\n";
+					tablecount++;	
+					for (int i = 0; i < tablecount; i++)
+					{
+						jsoncontent += "\t";
+					}	
 				}
-			}
-			else if (*it == '[')
-			{
-				tablecount++;
-				jsoncontent += "\r\n";
-				for (int i = 0; i < tablecount; i++)
-				{
-					jsoncontent += "\t";
-				}
-				jsoncontent += *it;
-				for (int i = 0; i < tablecount; i++)
-				{
-					jsoncontent += "\t";
-				}
-			}
+			}			
 			else if (*it == ',')
 			{
 				jsoncontent += *it;
-				jsoncontent += "\r\n";
+				if((*(it+1) != '{')&&(*(it+1) != '['))
+					jsoncontent += "\r\n";
 				for (int i = 0; i < tablecount; i++)
 				{
 					jsoncontent += "\t";
@@ -83,13 +84,14 @@ void CppEasyJson::WellFormat(std::string &jsoncontent)
 			}
 			else if (*it == '}' || *it == ']')
 			{
+				tablecount--;
 				jsoncontent += "\r\n";
 				for (int i = 0; i < tablecount; i++)
 				{
 					jsoncontent += "\t";
 				}
 				jsoncontent += *it;
-				tablecount--;
+				
 			}
 			else
 			{
@@ -98,6 +100,7 @@ void CppEasyJson::WellFormat(std::string &jsoncontent)
 		}
 		it++;
 	}	
+	jsoncontent += "\r\n";
 
 }
 std::string CppEasyJson::ToString()
@@ -187,7 +190,7 @@ bool CppEasyJson::SetValue(const char* nodepath, char * value)
 	bret = SetValue(nodepath,val);	
 	return bret;
 }
-bool  CppEasyJson::GetValue(const char* nodepath, std::string value)
+bool  CppEasyJson::GetValue(const char* nodepath, std::string & value)
 {
 	bool bret = false;
 	JsonValue *val;
@@ -1103,7 +1106,10 @@ JsonLex::~JsonLex()
 bool JsonLex::ParseString(const char * jsonstring, JsonNode **root)
 {
 	bool bret = false;	
-	json = AToU(jsonstring);
+	if(!IsTextUTF8((char *)jsonstring,strlen(jsonstring)))
+		json = AToU(jsonstring);
+	else
+		json = jsonstring;
 	std::string::iterator it = json.begin();
 	while (it != json.end())
 	{
@@ -1362,9 +1368,31 @@ std::string JsonLex::GetNextToken(std::string::iterator & it, bool tonextJsonDou
 				{
 					if (*(it + 1) == JsonDoubleQuote)
 					{
-						token += JsonDoubleQuote;
-						it++;
-						it++;
+						if ((it + 2) != json.end() )
+						{
+							if((*(it+2)==JsonComma)
+								||(*(it+2)==JsonColon)
+								||(*(it+2)==JsonRightBrace)
+								||(*(it+2)==JsonRightBracket)								
+								||(*(it+2)==JsonSlash)								
+								||isspace(*(it+2)))
+							{
+								token += *it;
+								it++;
+							}
+							else
+							{
+								token += JsonDoubleQuote;
+								it++;
+								it++;
+							}
+						}
+						else
+						{
+							token += JsonDoubleQuote;
+							it++;
+							it++;
+						}
 					}
 					else
 					{
