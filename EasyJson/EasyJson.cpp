@@ -340,9 +340,17 @@ void Test13()
 	ejson.Release();
 	
 }
+void TestJsonFile()
+{
+	CppEasyJson ejson;
+	ejson.ParseFile("E:\\1.json");
+	ejson.SaveToFile("E:\\2.json");
+
+}
 int main()
 {
-	Test19();
+	TestJsonFile();
+	//Test19();
 	//Test25();
 	//Test24();
 	//Test23();
