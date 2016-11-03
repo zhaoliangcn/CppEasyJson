@@ -108,8 +108,9 @@ std::string CppEasyJson::ToString()
 	std::string jsonstra;
 	if (jsonroot)
 	{
-		jsonstra = jsonroot->toString();
-		WellFormat(jsonstra);
+		int depth = 0;
+		jsonstra = jsonroot->ToWellFormatedString(depth);
+		//WellFormat(jsonstra);
 	}
 	return jsonstra;
 }
@@ -936,6 +937,52 @@ JsonNode::~JsonNode()
 		values.pop_back();
 	}	
 }
+std::string JsonNode::ToWellFormatedString(int & depth)
+{
+	std::string temp;
+	if (type == NODE_OBJECT)
+	{
+		temp += "{";
+		depth++;
+	}
+	else
+	{
+		temp += "[";
+	}
+	if (values.size() > 0)
+	{
+		for (size_t i = 0; i < values.size(); i++)
+		{		
+			temp += "\n";
+			for (int j = 0; j < depth; j++)
+			{
+				temp += "\t";
+			}
+			temp += values.at(i)->ToWellFormatedString(depth);
+			temp += ",";
+		}
+		temp = temp.substr(0, temp.length() - 1);
+	}	
+	temp += "\n";
+	if (type == NODE_OBJECT)
+	{
+		depth--;
+		for (int j = 0; j < depth; j++)
+		{
+			temp += "\t";
+		}
+		temp += "}";		
+	}
+	else
+	{
+		for (int j = 0; j < depth; j++)
+		{
+			temp += "\t";
+		}
+		temp += "]";
+	}
+	return temp;
+}
 std::string JsonNode::toString()
 {
 	std::string temp;
@@ -951,11 +998,14 @@ std::string JsonNode::toString()
 	{
 		for (size_t i = 0; i < values.size(); i++)
 		{
+			temp += "\t";
+			temp += "\r\n";
 			temp += values.at(i)->ToString();
 			temp += ",";
 		}
 		temp = temp.substr(0, temp.length() - 1);
 	}
+	temp += "\r\n";
 	if (type == NODE_OBJECT)
 	{
 		temp += "}";
@@ -977,6 +1027,124 @@ JsonValue::~JsonValue()
 	{
 		delete node;
 	}
+}
+std::string JsonValue::ToWellFormatedString(int &depth)
+{
+	std::string temp;	
+	if (type == VALUE_STRING)
+	{
+		if (!name.empty())
+		{
+			temp += "\"";
+			temp += name;
+			temp += "\"";
+			temp += ":";
+		}
+		temp += "\"";
+		std::string escapedstr;
+		std::string::iterator it = str.begin();
+		while (it != str.end())
+		{
+			if (*it == JsonDoubleQuote)
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += JsonDoubleQuote;
+				it++;
+				continue;
+			}
+			else if (*it == '\b')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += 'b';
+				it++;
+				continue;
+			}
+			else if (*it == '\r')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += 'r';
+				it++;
+				continue;
+			}
+			else if (*it == '\f')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += 'f';
+				it++;
+				continue;
+			}
+			else if (*it == '\t')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += 't';
+				it++;
+				continue;
+			}
+			else if (*it == '\n')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += 'n';
+				it++;
+				continue;
+			}
+			else if (*it == '\\')
+			{
+				escapedstr += JsonEscapeCharacter;
+				escapedstr += '\\';
+				it++;
+				continue;
+			}
+			else if (*it > 0 && *it <= 0x1F)
+			{
+				char buffer[5] = { 0 };
+				sprintf(buffer, "%04X", static_cast<int>(*it));
+				escapedstr += "\\u";
+				escapedstr += buffer;
+				it++;
+				continue;
+			}
+			escapedstr += *it;
+			it++;
+		}
+		temp += escapedstr;
+		temp += "\"";
+	}
+	else if (type == VALUE_OBJECT)
+	{
+		if (!name.empty())
+		{
+			temp += "\"";
+			temp += name;
+			temp += "\"";
+			temp += ":";
+		}
+		
+		temp += node->ToWellFormatedString(depth);		
+	}
+	else if (type == VALUE_ARRAY)
+	{		
+		if (!name.empty())
+		{
+			temp += "\"";
+			temp += name;
+			temp += "\"";
+			temp += ":";
+		}		
+		temp += node->ToWellFormatedString(depth);		
+
+	}
+	else
+	{
+		if (!name.empty())
+		{
+			temp += "\"";
+			temp += name;
+			temp += "\"";
+			temp += ":";
+		}
+		temp += str;
+	}	
+	return temp;
 }
 std::string JsonValue::ToString()
 {

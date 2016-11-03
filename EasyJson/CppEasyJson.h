@@ -140,6 +140,7 @@ public:
 	JsonValue();
 	~JsonValue();
 	std::string ToString();
+	std::string ToWellFormatedString(int &depth);
 	JsonValueType type;
 	std::string name;
 	std::string str;
@@ -157,6 +158,7 @@ public:
 	JsonNode();
 	~JsonNode();
 	std::string toString();
+	std::string ToWellFormatedString(int &depth);
 	JsonValues values;
 	JsonNodeType type;	
 };
