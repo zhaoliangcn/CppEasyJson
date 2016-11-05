@@ -1094,6 +1094,13 @@ std::string JsonValue::ToWellFormatedString(int &depth)
 				it++;
 				continue;
 			}
+			//else if (*it == '/')
+			//{
+			//	escapedstr += JsonEscapeCharacter;
+			//	escapedstr += '\/';
+			//	it++;
+			//	continue;
+			//}
 			else if (*it > 0 && *it <= 0x1F)
 			{
 				char buffer[5] = { 0 };
@@ -1561,6 +1568,58 @@ std::string JsonLex::GetNextToken(std::string::iterator & it, bool tonextJsonDou
 							it++;
 							it++;
 						}
+					}
+					else if (*(it + 1) == JsonEscapeCharacter)
+					{
+						token += *it;
+						it++;
+						it++;
+					}
+					else if (*(it + 1) == 'b')
+					{
+						token += '\b';
+						it++;
+						it++;
+					}
+					else if (*(it + 1) == 'f')
+					{
+						token += '\f';
+						it++;
+						it++;
+					}
+					else if (*(it + 1) == 't')
+					{
+						token += '\t';
+						it++;
+						it++;
+					}
+					else if (*(it + 1) == 'n')
+					{
+						token += '\n';
+						it++;
+						it++;
+					}
+					else if (*(it + 1) == 'r')
+					{
+						token += '\r';
+						it++;
+						it++;
+					}
+					else if (*(it + 1) == '\\')
+					{
+						token += '\\';
+						it++;
+						it++;
+					}
+					else if (*(it + 1) == '/')
+					{
+						token += '/';
+						it++;
+						it++;
+					}
+					else if (*(it + 1) == 'u')
+					{
+						token += (*it);
 					}
 					else
 					{
