@@ -349,9 +349,9 @@ void TestJsonFile()
 }
 int main()
 {
-	TestJsonFile();
-	//Test19();
-	//Test25();
+//	TestJsonFile();
+	Test19();
+	Test25();
 	//Test24();
 	//Test23();
 	//Test22();

@@ -13,7 +13,7 @@ CppEasyJson 是开放源代码的软件，任何人都可以下载、使用、修改和重新发布，不必担心
 class JsonLex;
 class JsonNode;
 class JsonValue;
-
+#pragma warning(disable:4091)
 typedef enum JsonNodeType
 {
 	NODE_OBJECT,
@@ -56,12 +56,12 @@ class JsonLex
 public:
 	JsonLex();
 	~JsonLex();
-	bool ParseString(const char * jsonstring, JsonNode **root); 
-	JsonValue *  BuildJsonValue( std::string::iterator& it,JsonNode * parentnode);
-	JsonNode *  BulidJsonNode(std::string::iterator& it,JsonNode * parentnode, JsonNodeType nodetype);
-	void GoCommentEnd(std::string::iterator& it,std::string commentstyle);
+	bool ParseString(const char * jsonstring, int len, JsonNode **root);
+	JsonValue *  BuildJsonValue(std::string::iterator& it, JsonNode * parentnode);
+	JsonNode *  BulidJsonNode(std::string::iterator& it, JsonNode * parentnode, JsonNodeType nodetype);
+	void GoCommentEnd(std::string::iterator& it, std::string commentstyle);
 	bool TokenIsComment(std::string token);
-	std::string GetNextToken(std::string::iterator& it,bool tonextJsonDoubleQuote);
+	std::string GetNextToken(std::string::iterator& it, bool tonextJsonDoubleQuote);
 	bool AssignStringToJsonValue(JsonValue * value, std::string & text);
 	std::string json;
 	std::string currenttoken;
@@ -73,8 +73,10 @@ public:
 	CppEasyJson();
 	~CppEasyJson();
 
-	bool ParseString(const char * jsonstring);
-	bool ParseFile(const char *jsonfile);	
+	bool ParseString(const char * jsonstring, int len=-1);
+	bool ParseFile(const char *jsonfile);
+	bool LoadFromFile(const char *jsonfile);
+	bool LoadFromMemory(const char * jsonstring, int len = -1);
 
 	//路径方式
 	//节点名称.子节点名称.数组节点名称[数组元素下表].值名称
@@ -83,6 +85,12 @@ public:
 	bool SetValue(const char* nodepath, char * value);
 	bool GetValue(const char* nodepath, int & value);
 	bool SetValue(const char* nodepath, int  value);
+	bool GetValue(const char* nodepath, unsigned int  & value);
+	bool SetValue(const char* nodepath, unsigned int  value);
+	bool GetValue(const char* nodepath, __int64 & value);
+	bool SetValue(const char* nodepath, __int64  value);
+	bool GetValue(const char* nodepath, unsigned __int64  & value);
+	bool SetValue(const char* nodepath, unsigned __int64  value);
 	bool GetValue(const char* nodepath, double & value);
 	bool SetValue(const char* nodepath, double  value);
 	bool GetValue(const char* nodepath, bool & value);
@@ -105,6 +113,9 @@ public:
 	//按节点逐层访问方式
 	bool AppendValue(JsonNode * node, char * name, char * value);
 	bool AppendValue(JsonNode * node, char * name, int value);
+	bool AppendValue(JsonNode * node, char * name, unsigned int value);
+	bool AppendValue(JsonNode * node, char * name, __int64 value);
+	bool AppendValue(JsonNode * node, char * name, unsigned __int64 value);
 	bool AppendValue(JsonNode * node, char * name, double value);
 	bool AppendValue(JsonNode * node, char * name, bool value);
 	bool AppendNullValue(JsonNode * node, char * name);
@@ -119,7 +130,7 @@ public:
 	CppEasyJson & operator = (CppEasyJson & fromjson);
 	CppEasyJson & operator = (JsonNode * fromjsonnode);
 
-	JsonNode *  CreateJsonNode(JsonNodeType type);
+	static JsonNode *  CreateJsonNode(JsonNodeType type);
 	JsonNode * GetRoot();
 	bool SetRoot(JsonNode * node);
 	std::string ToString();
@@ -128,7 +139,7 @@ public:
 	void WellFormat(std::string &jsoncontent);
 
 private:
-	JsonNode * FindNodeInternal(std::string path, JsonNode * parentnode,int &index, std::string &keyname);
+	JsonNode * FindNodeInternal(std::string path, JsonNode * parentnode, int &index, std::string &keyname);
 	std::string jsoncontent;
 	JsonLex jsonlex;
 	JsonNode *jsonroot;
@@ -145,10 +156,13 @@ public:
 	std::string name;
 	std::string str;
 	int vi;
+	unsigned int vui;
+	__int64 vi64;
+	unsigned __int64 vui64;
 	double vd;
 	bool vbl;
 	JsonNode * node;
-	
+
 };
 
 
@@ -160,7 +174,44 @@ public:
 	std::string toString();
 	std::string ToWellFormatedString(int &depth);
 	JsonValues values;
-	JsonNodeType type;	
+	JsonNodeType type;
+	int GetArraySize();
+	JsonValue *  GetValue(char * name);
+	JsonValue *  GetValue(int index);
+	bool GetValue(const char* name, char * value, size_t valuesize);
+	bool GetValue(const char* name, std::string& value);
+	bool SetValue(const char* name, char * value);
+	bool GetValue(const char* name, int & value);
+	bool SetValue(const char* name, int  value);
+	bool GetValue(const char* name, unsigned int  & value);
+	bool SetValue(const char* name, unsigned int  value);
+	bool GetValue(const char* name, __int64 & value);
+	bool SetValue(const char* name, __int64  value);
+	bool GetValue(const char* name, unsigned __int64  & value);
+	bool SetValue(const char* name, unsigned __int64  value);
+	bool GetValue(const char* name, double & value);
+	bool SetValue(const char* name, double  value);
+	bool GetValue(const char* name, bool & value);
+	bool SetValue(const char* name, bool  value);
+	bool SetNullValue(const char* name);
+	bool GetValue(const char* name, JsonValue ** jsvalue);
+	bool SetValue(const char* name, JsonValue * newjsvalue);
+	bool DelValue(const char* name);
+
+	bool AppendValue(char * name, char * value);
+	bool AppendValue(char * name, int value);
+	bool AppendValue(char * name, unsigned int value);
+	bool AppendValue(char * name, __int64 value);
+	bool AppendValue(char * name, unsigned __int64 value);
+	bool AppendValue(char * name, double value);
+	bool AppendValue(char * name, bool value);
+	bool AppendNullValue(char * name);
+	bool AppendObjectValue(char * name, JsonNode *obj);
+	bool AppendArrayValue(char * name, JsonNode *objarray);
+
+	bool DelValue(int index);
+
+
 };
 
 

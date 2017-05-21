@@ -19,13 +19,17 @@ CppEasyJson::~CppEasyJson()
 {
 }
 
-bool CppEasyJson::ParseString(const char * jsonstring)
+bool CppEasyJson::ParseString(const char * jsonstring, int len)
 {
-	if(jsonroot!=NULL)
+	if (jsonroot != NULL)
 	{
 		Release();
 	}
-	return jsonlex.ParseString(jsonstring, &jsonroot);
+	if (len == -1)
+	{
+		len = strlen(jsonstring);
+	}
+	return jsonlex.ParseString(jsonstring, len, &jsonroot);
 }
 void CppEasyJson::WellFormat(std::string &jsoncontent)
 {
@@ -35,26 +39,26 @@ void CppEasyJson::WellFormat(std::string &jsoncontent)
 	int count = 0;
 	int tablecount = 0;
 	while (it != jsonstra.end())
-	{		
+	{
 		if (*it == '"')
-		{		
+		{
 			jsoncontent += *it;
 		}
 		else
 		{
-			if((*it == '{')||(*it == '['))
+			if ((*it == '{') || (*it == '['))
 			{
-					
-				if(!jsoncontent.empty())
+
+				if (!jsoncontent.empty())
 				{
-					jsoncontent += "\r\n";											
+					jsoncontent += "\r\n";
 					for (int i = 0; i < tablecount; i++)
 					{
 						jsoncontent += "\t";
-					}				
+					}
 					jsoncontent += *it;
 					jsoncontent += "\r\n";
-					tablecount++;	
+					tablecount++;
 					for (int i = 0; i < tablecount; i++)
 					{
 						jsoncontent += "\t";
@@ -64,17 +68,17 @@ void CppEasyJson::WellFormat(std::string &jsoncontent)
 				{
 					jsoncontent += *it;
 					jsoncontent += "\r\n";
-					tablecount++;	
+					tablecount++;
 					for (int i = 0; i < tablecount; i++)
 					{
 						jsoncontent += "\t";
-					}	
+					}
 				}
-			}			
+			}
 			else if (*it == ',')
 			{
 				jsoncontent += *it;
-				if((*(it+1) != '{')&&(*(it+1) != '['))
+				if ((*(it + 1) != '{') && (*(it + 1) != '['))
 					jsoncontent += "\r\n";
 				for (int i = 0; i < tablecount; i++)
 				{
@@ -91,7 +95,7 @@ void CppEasyJson::WellFormat(std::string &jsoncontent)
 					jsoncontent += "\t";
 				}
 				jsoncontent += *it;
-				
+
 			}
 			else
 			{
@@ -99,7 +103,7 @@ void CppEasyJson::WellFormat(std::string &jsoncontent)
 			}
 		}
 		it++;
-	}	
+	}
 	jsoncontent += "\r\n";
 
 }
@@ -116,8 +120,8 @@ std::string CppEasyJson::ToString()
 }
 bool CppEasyJson::SaveToFile(const char *jsonfile)
 {
-	bool bret = false;	
-	std::string jsoncontent = ToString();
+	bool bret = false;
+	std::string jsoncontent = GetRoot()->toString();
 	size_t fsize = jsoncontent.length();
 	size_t nread = 0;
 	FILE *fh;
@@ -128,7 +132,7 @@ bool CppEasyJson::SaveToFile(const char *jsonfile)
 	}
 	fseek(fh, 0, SEEK_SET);
 	nread = fwrite((char *)jsoncontent.c_str(), 1, fsize, fh);
-	fclose(fh);		
+	fclose(fh);
 	return bret;
 }
 bool CppEasyJson::ParseFile(const char * jsonfile)
@@ -158,14 +162,24 @@ bool CppEasyJson::ParseFile(const char * jsonfile)
 		fseek(fh, 0, SEEK_SET);
 		nread = fread(bufp, 1, fsize, fh);
 		//if (nread== fsize) 
-		if (nread>0)
+		if (nread > 0)
 		{
-			bret = ParseString(buf);
-		}		
-		free(buf);		
+			bret = ParseString(buf, fsize);
+		}
+		free(buf);
 	}
 	fclose(fh);
 	return bret;
+}
+
+bool CppEasyJson::LoadFromFile(const char * jsonfile)
+{
+	return ParseFile(jsonfile);
+}
+
+bool CppEasyJson::LoadFromMemory(const char * jsonstring, int len)
+{
+	return ParseString(jsonstring,len);
 }
 
 bool CppEasyJson::GetValue(const char * nodepath, char * value, size_t valuesize)
@@ -185,10 +199,10 @@ bool CppEasyJson::GetValue(const char * nodepath, char * value, size_t valuesize
 bool CppEasyJson::SetValue(const char* nodepath, char * value)
 {
 	bool bret = false;
-	JsonValue *val=new JsonValue;
+	JsonValue *val = new JsonValue;
 	val->type = VALUE_STRING;
 	val->str = AToU(value);
-	bret = SetValue(nodepath,val);	
+	bret = SetValue(nodepath, val);
 	return bret;
 }
 bool  CppEasyJson::GetValue(const char* nodepath, std::string & value)
@@ -203,6 +217,84 @@ bool  CppEasyJson::GetValue(const char* nodepath, std::string & value)
 			bret = true;
 		}
 	}
+	return bret;
+}
+bool  CppEasyJson::GetValue(const char* nodepath, __int64 & value)
+{
+	bool bret = false;
+	JsonValue *val;
+	if (GetValue(nodepath, &val))
+	{
+		if (val->type == VALUE_NUM_INT)
+		{
+			value = val->vi64;
+			bret = true;
+		}
+	}
+	return bret;
+}
+bool  CppEasyJson::SetValue(const char* nodepath, __int64  value)
+{
+	bool bret = false;
+	JsonValue *val = new JsonValue;
+	val->type = VALUE_NUM_INT;
+	val->vi = value;
+	char buffer[256] = { 0 };
+	sprintf(buffer, "%I64d", value);
+	val->str = AToU(buffer);
+	bret = SetValue(nodepath, val);
+	return bret;
+}
+bool  CppEasyJson::GetValue(const char* nodepath, unsigned __int64  & value)
+{
+	bool bret = false;
+	JsonValue *val;
+	if (GetValue(nodepath, &val))
+	{
+		if (val->type == VALUE_NUM_INT)
+		{
+			value = val->vui64;
+			bret = true;
+		}
+	}
+	return bret;
+}
+bool  CppEasyJson::SetValue(const char* nodepath, unsigned __int64  value)
+{
+	bool bret = false;
+	JsonValue *val = new JsonValue;
+	val->type = VALUE_NUM_INT;
+	val->vi = value;
+	char buffer[256] = { 0 };
+	sprintf(buffer, "%I64u", value);
+	val->str = AToU(buffer);
+	bret = SetValue(nodepath, val);
+	return bret;
+}
+bool CppEasyJson::GetValue(const char* nodepath, unsigned int  & value)
+{
+	bool bret = false;
+	JsonValue *val;
+	if (GetValue(nodepath, &val))
+	{
+		if (val->type == VALUE_NUM_INT)
+		{
+			value = val->vui;
+			bret = true;
+		}
+	}
+	return bret;
+}
+bool CppEasyJson::SetValue(const char* nodepath, unsigned int  value)
+{
+	bool bret = false;
+	JsonValue *val = new JsonValue;
+	val->type = VALUE_NUM_INT;
+	val->vi = value;
+	char buffer[256] = { 0 };
+	sprintf(buffer, "%u", value);
+	val->str = AToU(buffer);
+	bret = SetValue(nodepath, val);
 	return bret;
 }
 bool CppEasyJson::GetValue(const char * nodepath, int & value)
@@ -223,12 +315,12 @@ bool CppEasyJson::SetValue(const char* nodepath, int  value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
-	val->type = VALUE_NUM_INT;		
-	val->vi =value ;
+	val->type = VALUE_NUM_INT;
+	val->vi = value;
 	char buffer[256] = { 0 };
-	sprintf(buffer,"%d",value);
+	sprintf(buffer, "%d", value);
 	val->str = AToU(buffer);
-	bret = SetValue(nodepath, val);	
+	bret = SetValue(nodepath, val);
 	return bret;
 }
 bool CppEasyJson::GetValue(const char * nodepath, double & value)
@@ -242,7 +334,7 @@ bool CppEasyJson::GetValue(const char * nodepath, double & value)
 			value = val->vd;
 			bret = true;
 		}
-	}	
+	}
 	return bret;
 }
 bool CppEasyJson::SetValue(const char* nodepath, double  value)
@@ -268,7 +360,7 @@ bool CppEasyJson::GetValue(const char * nodepath, bool & value)
 			value = val->vbl;
 			bret = true;
 		}
-	}	
+	}
 	return bret;
 }
 bool CppEasyJson::SetValue(const char* nodepath, bool  value)
@@ -315,7 +407,7 @@ bool CppEasyJson::DelValue(const char* nodepath)
 			if (valueindex >= 0 && valueindex < valuecount)
 			{
 				bret = true;
-				jsvalue = node->values.at(valueindex); 
+				jsvalue = node->values.at(valueindex);
 				node->values.erase(node->values.begin() + valueindex);
 				delete jsvalue;
 			}
@@ -335,7 +427,7 @@ bool CppEasyJson::DelValue(const char* nodepath)
 				}
 			}
 		}
-	}	
+	}
 	return bret;
 }
 bool CppEasyJson::AppendValue(const char * nodepath, char * name, bool value)
@@ -386,7 +478,7 @@ bool CppEasyJson::AppendObjectValue(const char * nodepath, char * name)
 	JsonNode * node = GetNode(nodepath);
 	if (node)
 	{
-		JsonNode * nodeobj =  CreateJsonNode(NODE_OBJECT);
+		JsonNode * nodeobj = CreateJsonNode(NODE_OBJECT);
 		JsonValue * val = new JsonValue;
 		if (val && nodeobj)
 		{
@@ -416,7 +508,7 @@ bool CppEasyJson::AppendArrayValue(const char * nodepath, char * name)
 	}
 	return bret;
 }
-bool CppEasyJson::AppendValue(JsonNode * node, char * name,char * value)
+bool CppEasyJson::AppendValue(JsonNode * node, char * name, char * value)
 {
 	bool bret = false;
 	if (node)
@@ -427,6 +519,66 @@ bool CppEasyJson::AppendValue(JsonNode * node, char * name,char * value)
 			val->type = VALUE_STRING;
 			val->name = AToU(name);
 			val->str = AToU(value);
+			node->values.push_back(val);
+		}
+
+	}
+	return bret;
+}
+bool  CppEasyJson::AppendValue(JsonNode * node, char * name, __int64 value)
+{
+	bool bret = false;
+	if (node)
+	{
+		JsonValue * val = new JsonValue;
+		if (val)
+		{
+			val->type = VALUE_NUM_INT;
+			val->name = AToU(name);
+			val->vi64 = value;
+			char buffer[256] = { 0 };
+			sprintf(buffer, "%I64d", value);
+			val->str = AToU(buffer);
+			node->values.push_back(val);
+		}
+
+	}
+	return bret;
+}
+bool  CppEasyJson::AppendValue(JsonNode * node, char * name, unsigned __int64 value)
+{
+	bool bret = false;
+	if (node)
+	{
+		JsonValue * val = new JsonValue;
+		if (val)
+		{
+			val->type = VALUE_NUM_INT;
+			val->name = AToU(name);
+			val->vui64 = value;
+			char buffer[256] = { 0 };
+			sprintf(buffer, "%I64u", value);
+			val->str = AToU(buffer);
+			node->values.push_back(val);
+		}
+
+	}
+	return bret;
+}
+bool  CppEasyJson::AppendValue(JsonNode * node, char * name, unsigned int value)
+{
+	bool bret = false;
+	if (node)
+	{
+		JsonValue * val = new JsonValue;
+		if (val)
+		{
+			val->type = VALUE_NUM_INT;
+			val->name = AToU(name);
+			val->vi = value;
+			char buffer[256] = { 0 };
+			sprintf(buffer, "%u", value);
+			val->str = AToU(buffer);
 			node->values.push_back(val);
 		}
 
@@ -445,7 +597,7 @@ bool CppEasyJson::AppendValue(JsonNode * node, char * name, int value)
 			val->name = AToU(name);
 			val->vi = value;
 			char buffer[256] = { 0 };
-			sprintf(buffer,"%d",value);
+			sprintf(buffer, "%d", value);
 			val->str = AToU(buffer);
 			node->values.push_back(val);
 		}
@@ -513,7 +665,7 @@ bool CppEasyJson::AppendNullValue(JsonNode * node, char * name)
 	return bret;
 
 }
-bool CppEasyJson::AppendObjectValue(JsonNode * node, char * name ,JsonNode *obj)
+bool CppEasyJson::AppendObjectValue(JsonNode * node, char * name, JsonNode *obj)
 {
 	bool bret = false;
 	if (node)
@@ -578,7 +730,7 @@ bool CppEasyJson::DelValue(JsonNode * node, int index)
 		{
 			JsonValue * val = node->values.at(index);
 			if (val)
-			{		
+			{
 				delete val;
 				node->values.erase(node->values.begin() + index);
 				bret = true;
@@ -601,7 +753,7 @@ JsonValue *  CppEasyJson::GetValue(JsonNode * node, char * name)
 				{
 					break;
 				}
-			}		
+			}
 		}
 	}
 	return val;
@@ -609,11 +761,11 @@ JsonValue *  CppEasyJson::GetValue(JsonNode * node, char * name)
 JsonValue *  CppEasyJson::GetValue(JsonNode * node, int index)
 {
 	JsonValue * val = NULL;
-	if (node )
+	if (node)
 	{
 		if (index >= 0 && index < node->values.size())
 		{
-			val = node->values.at(index);			
+			val = node->values.at(index);
 		}
 	}
 	return val;
@@ -622,11 +774,12 @@ CppEasyJson & CppEasyJson::operator=(CppEasyJson & fromjson)
 {
 	if (this->jsonroot)
 	{
-		this->Release();	
+		this->Release();
 	}
 	this->jsoncontent = "";
 	this->jsonlex.json = "";
-	this->ParseString(fromjson.ToString().c_str());
+	std::string str = fromjson.ToString();
+	this->ParseString(str.c_str(), str.length());
 	return *this;
 }
 CppEasyJson & CppEasyJson::operator=(JsonNode * fromjsonnode)
@@ -638,8 +791,9 @@ CppEasyJson & CppEasyJson::operator=(JsonNode * fromjsonnode)
 			this->Release();
 		}
 		this->jsoncontent = "";
-		this->jsonlex.json = ""; 
-		this->ParseString(fromjsonnode->toString().c_str());
+		this->jsonlex.json = "";
+		std::string str = fromjsonnode->toString();
+		this->ParseString(str.c_str(), str.length());
 	}
 	return *this;
 
@@ -707,7 +861,7 @@ bool CppEasyJson::SetValue(const char* nodepath, JsonValue * newjsvalue)
 				}
 			}
 		}
-	}	
+	}
 	return bret;
 }
 bool CppEasyJson::GetValue(const char * nodepath, JsonValue ** jsvalue)
@@ -727,18 +881,18 @@ bool CppEasyJson::GetValue(const char * nodepath, JsonValue ** jsvalue)
 			if (valueindex >= 0 && valueindex < valuecount)
 			{
 				bret = true;
-				*jsvalue = node->values.at(valueindex);				
+				*jsvalue = node->values.at(valueindex);
 			}
 		}
 		else
 		{
 			for (size_t i = 0; i < valuecount; i++)
-			{				
+			{
 				if (node->values.at(i)->name == keyname)
 				{
 					*jsvalue = node->values.at(i);
 					bret = true;
-					break;					
+					break;
 				}
 			}
 		}
@@ -784,7 +938,7 @@ bool CppEasyJson::AppendValue(const char * nodepath, char * name, int value)
 			val->name = AToU(name);
 			val->vi = value;
 			char buffer[256] = { 0 };
-			sprintf(buffer,"%d",value);
+			sprintf(buffer, "%d", value);
 			val->str = AToU(buffer);
 			node->values.push_back(val);
 		}
@@ -824,10 +978,10 @@ JsonNode * CppEasyJson::GetRoot()
 	return jsonroot;
 }
 
-JsonNode * CppEasyJson::FindNodeInternal(std::string path, JsonNode * parentnode,int& index, std::string &keyname)
+JsonNode * CppEasyJson::FindNodeInternal(std::string path, JsonNode * parentnode, int& index, std::string &keyname)
 {
 	JsonNode * node = NULL;
-	if(!parentnode)
+	if (!parentnode)
 	{
 		return node;
 	}
@@ -841,10 +995,10 @@ JsonNode * CppEasyJson::FindNodeInternal(std::string path, JsonNode * parentnode
 	{
 		path = path.substr(0, pos);
 		JsonNode * inode = NULL;
-		inode = FindNodeInternal(path, parentnode,index,keyname);
+		inode = FindNodeInternal(path, parentnode, index, keyname);
 		sub = sub.substr(pos + 1, sub.length() - pos - 1);
-		if(inode)
-			node = FindNodeInternal(sub, inode,index, keyname);
+		if (inode)
+			node = FindNodeInternal(sub, inode, index, keyname);
 	}
 	else
 	{
@@ -864,16 +1018,16 @@ JsonNode * CppEasyJson::FindNodeInternal(std::string path, JsonNode * parentnode
 				inode = parentnode;
 			}
 
-			if(inode)
+			if (inode)
 				//if (parentnode->type == NODE_OBJECT)
 			{
 				keyname = sub;
-				index = atoi(sub.substr(pos1+1, pos2 - pos1 - 1).c_str());
+				index = atoi(sub.substr(pos1 + 1, pos2 - pos1 - 1).c_str());
 				JsonNode * inode2 = NULL;
-				if (index>=0 && index<inode->values.size())
-					inode2= inode->values[index]->node;
+				if (index >= 0 && index < inode->values.size())
+					inode2 = inode->values[index]->node;
 				if (inode2 == NULL)
-				{					
+				{
 					return inode;
 				}
 				else
@@ -893,14 +1047,14 @@ JsonNode * CppEasyJson::FindNodeInternal(std::string path, JsonNode * parentnode
 				{
 					if (parentnode->values[i]->name == path)
 					{
-						if (parentnode->values[i]->node!=NULL)
+						if (parentnode->values[i]->node != NULL)
 						{
 							node = parentnode->values[i]->node;
 						}
 						else
 						{
 							node = parentnode;
-						}						
+						}
 						break;
 					}
 				}
@@ -908,7 +1062,7 @@ JsonNode * CppEasyJson::FindNodeInternal(std::string path, JsonNode * parentnode
 			}
 			else if (parentnode->type == NODE_ARRAY)
 			{
-				if (index >= 0 && index <parentnode->values.size())
+				if (index >= 0 && index < parentnode->values.size())
 				{
 					if (parentnode->values[index]->node != NULL)
 						return parentnode->values[index]->node;
@@ -916,8 +1070,8 @@ JsonNode * CppEasyJson::FindNodeInternal(std::string path, JsonNode * parentnode
 						return parentnode;
 				}
 			}
-		}		
-	}	
+		}
+	}
 	return node;
 }
 
@@ -935,7 +1089,230 @@ JsonNode::~JsonNode()
 		value = values.back();
 		delete value;
 		values.pop_back();
-	}	
+	}
+}
+int JsonNode::GetArraySize()
+{
+	if (type == NODE_ARRAY)
+		return values.size();
+	else
+		return 0;
+}
+JsonValue *  JsonNode::GetValue(char * name)
+{
+	JsonValue * val = NULL;
+	if (name)
+	{
+		for (size_t i = 0; i < values.size(); i++)
+		{
+			val = values.at(i);
+			if (val)
+			{
+				if (val->name == name)
+				{
+					break;
+				}
+			}
+		}
+	}
+	return val;
+}
+JsonValue * JsonNode::GetValue(int index)
+{
+	JsonValue * val = NULL;
+	if (index >= 0 && index < values.size())
+	{
+		val = values.at(index);
+	}
+	return val;
+}
+bool JsonNode::DelValue(int index)
+{
+	bool bret = false;
+	if (index >= 0 && index < this->values.size())
+	{
+		JsonValue * val = this->values.at(index);
+		if (val)
+		{
+			delete val;
+			this->values.erase(this->values.begin() + index);
+			bret = true;
+		}
+	}
+	return bret;
+}
+bool JsonNode::GetValue(const char * name, char * value, size_t valuesize)
+{
+	bool bret = false;
+	JsonValue *val;
+	if (GetValue(name, &val))
+	{
+		if (val->type == VALUE_STRING)
+		{
+			strcpy_s(value, valuesize, val->str.c_str());
+			bret = true;
+		}
+	}
+	return bret;
+
+}
+bool JsonNode::GetValue(const char * name, std::string & value)
+{
+	bool bret = false;
+	JsonValue *val;
+	if (GetValue(name, &val))
+	{
+		if (val->type == VALUE_STRING)
+		{
+			value = val->str;
+			bret = true;
+		}
+	}
+	return bret;
+
+}
+bool JsonNode::SetValue(const char * name, char * value)
+{
+	bool bret = false;
+	JsonValue *val = new JsonValue;
+	val->type = VALUE_STRING;
+	val->str = AToU(value);
+	bret = SetValue(name, val);
+	return bret;
+}
+bool JsonNode::GetValue(const char * name, int & value)
+{
+	bool bret = false;
+	JsonValue *val;
+	if (GetValue(name, &val))
+	{
+		if (val->type == VALUE_NUM_INT)
+		{
+			value = val->vi;
+			bret = true;
+		}
+	}
+	return bret;
+}
+bool JsonNode::SetValue(const char * name, int value)
+{
+	bool bret = false;
+	JsonValue *val = new JsonValue;
+	val->type = VALUE_NUM_INT;
+	val->vi = value;
+	char buffer[256] = { 0 };
+	sprintf(buffer, "%d", value);
+	val->str = AToU(buffer);
+	bret = SetValue(name, val);
+	return bret;
+}
+bool JsonNode::GetValue(const char * name, unsigned int & value)
+{
+	bool bret = false;
+	JsonValue *val;
+	if (GetValue(name, &val))
+	{
+		if (val->type == VALUE_NUM_INT)
+		{
+			value = val->vui;
+			bret = true;
+		}
+	}
+	return bret;
+}
+bool JsonNode::SetValue(const char * name, unsigned int value)
+{
+	bool bret = false;
+	JsonValue *val = new JsonValue;
+	val->type = VALUE_NUM_INT;
+	val->vi = value;
+	char buffer[256] = { 0 };
+	sprintf(buffer, "%u", value);
+	val->str = AToU(buffer);
+	bret = SetValue(name, val);
+	return bret;
+
+}
+bool JsonNode::GetValue(const char * name, __int64 & value)
+{
+	bool bret = false;
+	JsonValue *val;
+	if (GetValue(name, &val))
+	{
+		if (val->type == VALUE_NUM_INT)
+		{
+			value = val->vi64;
+			bret = true;
+		}
+	}
+	return bret;
+}
+bool JsonNode::SetValue(const char * name, __int64 value)
+{
+	bool bret = false;
+	JsonValue *val = new JsonValue;
+	val->type = VALUE_NUM_INT;
+	val->vi = value;
+	char buffer[256] = { 0 };
+	sprintf(buffer, "%I64d", value);
+	val->str = AToU(buffer);
+	bret = SetValue(name, val);
+	return bret;
+
+}
+bool JsonNode::GetValue(const char * name, unsigned __int64 & value)
+{
+	bool bret = false;
+	JsonValue *val;
+	if (GetValue(name, &val))
+	{
+		if (val->type == VALUE_NUM_INT)
+		{
+			value = val->vui64;
+			bret = true;
+		}
+	}
+	return bret;
+}
+bool JsonNode::SetValue(const char * name, unsigned __int64 value)
+{
+	bool bret = false;
+	JsonValue *val = new JsonValue;
+	val->type = VALUE_NUM_INT;
+	val->vi = value;
+	char buffer[256] = { 0 };
+	sprintf(buffer, "%I64u", value);
+	val->str = AToU(buffer);
+	bret = SetValue(name, val);
+	return bret;
+
+}
+bool JsonNode::GetValue(const char * name, double & value)
+{
+	bool bret = false;
+	JsonValue* val;
+	if (GetValue(name, &val))
+	{
+		if (val->type == VALUE_NUM_FLOAT)
+		{
+			value = val->vd;
+			bret = true;
+		}
+	}
+	return bret;
+}
+bool JsonNode::SetValue(const char * name, double value)
+{
+	bool bret = false;
+	JsonValue *val = new JsonValue;
+	val->type = VALUE_NUM_FLOAT;
+	val->vd = value;
+	char buffer[256] = { 0 };
+	sprintf(buffer, "%f", value);
+	val->str = AToU(buffer);
+	bret = SetValue(name, val);
+	return bret;
+
 }
 std::string JsonNode::ToWellFormatedString(int & depth)
 {
@@ -952,7 +1329,7 @@ std::string JsonNode::ToWellFormatedString(int & depth)
 	if (values.size() > 0)
 	{
 		for (size_t i = 0; i < values.size(); i++)
-		{		
+		{
 			temp += "\n";
 			for (int j = 0; j < depth; j++)
 			{
@@ -962,7 +1339,7 @@ std::string JsonNode::ToWellFormatedString(int & depth)
 			temp += ",";
 		}
 		temp = temp.substr(0, temp.length() - 1);
-	}	
+	}
 	temp += "\n";
 	if (type == NODE_OBJECT)
 	{
@@ -971,7 +1348,7 @@ std::string JsonNode::ToWellFormatedString(int & depth)
 		{
 			temp += "\t";
 		}
-		temp += "}";		
+		temp += "}";
 	}
 	else
 	{
@@ -1030,7 +1407,7 @@ JsonValue::~JsonValue()
 }
 std::string JsonValue::ToWellFormatedString(int &depth)
 {
-	std::string temp;	
+	std::string temp;
 	if (type == VALUE_STRING)
 	{
 		if (!name.empty())
@@ -1125,19 +1502,19 @@ std::string JsonValue::ToWellFormatedString(int &depth)
 			temp += "\"";
 			temp += ":";
 		}
-		
-		temp += node->ToWellFormatedString(depth);		
+
+		temp += node->ToWellFormatedString(depth);
 	}
 	else if (type == VALUE_ARRAY)
-	{		
+	{
 		if (!name.empty())
 		{
 			temp += "\"";
 			temp += name;
 			temp += "\"";
 			temp += ":";
-		}		
-		temp += node->ToWellFormatedString(depth);		
+		}
+		temp += node->ToWellFormatedString(depth);
 
 	}
 	else
@@ -1150,7 +1527,7 @@ std::string JsonValue::ToWellFormatedString(int &depth)
 			temp += ":";
 		}
 		temp += str;
-	}	
+	}
 	return temp;
 }
 std::string JsonValue::ToString()
@@ -1177,7 +1554,7 @@ std::string JsonValue::ToString()
 				it++;
 				continue;
 			}
-			else if(*it == '\b')
+			else if (*it == '\b')
 			{
 				escapedstr += JsonEscapeCharacter;
 				escapedstr += 'b';
@@ -1218,7 +1595,7 @@ std::string JsonValue::ToString()
 				escapedstr += '\\';
 				it++;
 				continue;
-			}			
+			}
 			else if (*it > 0 && *it <= 0x1F)
 			{
 				char buffer[5] = { 0 };
@@ -1278,10 +1655,10 @@ JsonLex::~JsonLex()
 {
 }
 
-bool JsonLex::ParseString(const char * jsonstring, JsonNode **root)
+bool JsonLex::ParseString(const char * jsonstring, int len, JsonNode **root)
 {
-	bool bret = false;	
-	if(!IsTextUTF8((char *)jsonstring,strlen(jsonstring)))
+	bool bret = false;
+	if (!IsTextUTF8((char *)jsonstring, len))
 		json = AToU(jsonstring);
 	else
 		json = jsonstring;
@@ -1291,11 +1668,11 @@ bool JsonLex::ParseString(const char * jsonstring, JsonNode **root)
 		if (*it == JsonLeftBrace)
 		{
 			it++;
-			*root = BulidJsonNode(it,NULL, NODE_OBJECT);
+			*root = BulidJsonNode(it, NULL, NODE_OBJECT);
 			bret = true;
 			break;
 		}
-		else if(*it == JsonLeftBracket)
+		else if (*it == JsonLeftBracket)
 		{
 			it++;
 			*root = BulidJsonNode(it, NULL, NODE_ARRAY);
@@ -1310,16 +1687,16 @@ bool JsonLex::ParseString(const char * jsonstring, JsonNode **root)
 
 JsonValue *JsonLex::BuildJsonValue(std::string::iterator & it, JsonNode * parentnode)
 {
-	bool haskey=false;
+	bool haskey = false;
 	int JsonDoubleQuoteMeet = 0;
-	JsonValue *value=new JsonValue;
+	JsonValue *value = new JsonValue;
 	std::string token = currenttoken;
 	while (it != json.end())
 	{
 		if (TokenIsComment(token))
 		{
 			GoCommentEnd(it, token);
-			token =GetNextToken(it,false);
+			token = GetNextToken(it, false);
 		}
 		else if (token == "{")
 		{
@@ -1351,12 +1728,12 @@ JsonValue *JsonLex::BuildJsonValue(std::string::iterator & it, JsonNode * parent
 		{
 			JsonDoubleQuoteMeet++;
 			if (!value->name.empty())
-				value->type = VALUE_STRING;		
-			if((JsonDoubleQuoteMeet&0x01)==0x0) //should be faster
+				value->type = VALUE_STRING;
+			if ((JsonDoubleQuoteMeet & 0x01) == 0x0) //should be faster
 				//if(JsonDoubleQuoteMeet%2==0)
 				token = GetNextToken(it, false);
 			else
-				token = GetNextToken(it,true);
+				token = GetNextToken(it, true);
 		}
 		else if (token == ":")
 		{
@@ -1371,16 +1748,16 @@ JsonValue *JsonLex::BuildJsonValue(std::string::iterator & it, JsonNode * parent
 					haskey = true;
 				}
 			}
-			else if(JsonDoubleQuoteMeet==3)
+			else if (JsonDoubleQuoteMeet == 3)
 			{
 				haskey = true;
-			}		
+			}
 			else
 			{
-				haskey = false;				
+				haskey = false;
 			}
 			value->type = VALUE_NULL;
-			token =GetNextToken(it,false);
+			token = GetNextToken(it, false);
 			if (it == json.end())
 			{
 				it--;
@@ -1388,16 +1765,16 @@ JsonValue *JsonLex::BuildJsonValue(std::string::iterator & it, JsonNode * parent
 		}
 		else if (token == ",")
 		{
-			break;		
+			break;
 		}
 		else
 		{
 			if (value->name.empty())
 			{
-				value->name = token;						
-			}		
+				value->name = token;
+			}
 			else if (value->str.empty())
-			{				
+			{
 				AssignStringToJsonValue(value, token);
 				if (*(it) == '"')
 				{
@@ -1405,8 +1782,8 @@ JsonValue *JsonLex::BuildJsonValue(std::string::iterator & it, JsonNode * parent
 				}
 				break;
 			}
-			token =GetNextToken(it,false);
-		}		
+			token = GetNextToken(it, false);
+		}
 	}
 	if (!haskey)
 	{
@@ -1415,48 +1792,48 @@ JsonValue *JsonLex::BuildJsonValue(std::string::iterator & it, JsonNode * parent
 			//printf("Error Json Value's Name must be string");
 		}
 		AssignStringToJsonValue(value, value->name);
-		value->name = "";		
+		value->name = "";
 	}
 	return value;
 }
 
 JsonNode * JsonLex::BulidJsonNode(std::string::iterator & it, JsonNode * parentnode, JsonNodeType nodetype)
 {
-	JsonNode * node= new JsonNode;
+	JsonNode * node = new JsonNode;
 	node->type = nodetype;
-	std::string token =GetNextToken(it,false);	
+	std::string token = GetNextToken(it, false);
 	while (it != json.end())
 	{
 		if (TokenIsComment(token))
 		{
 			GoCommentEnd(it, token);
-			token =GetNextToken(it,false);
+			token = GetNextToken(it, false);
 		}
 		else if (token == "\"")
 		{
 			node->values.push_back(BuildJsonValue(it, node));
-			token =GetNextToken(it,false);
+			token = GetNextToken(it, false);
 		}
 		else if (token == "}")
 		{
 			if (nodetype == NODE_ARRAY)
 			{
-				token =GetNextToken(it,false);
+				token = GetNextToken(it, false);
 			}
 			else
 			{
 				break;
-			}				
+			}
 		}
 		else if (token == "{")
 		{
 			node->values.push_back(BuildJsonValue(it, node));
-			token =GetNextToken(it,false);
+			token = GetNextToken(it, false);
 		}
 		else if (token == "[")
 		{
 			node->values.push_back(BuildJsonValue(it, node));
-			token =GetNextToken(it,false);
+			token = GetNextToken(it, false);
 		}
 		else if (token == "]")
 		{
@@ -1464,18 +1841,18 @@ JsonNode * JsonLex::BulidJsonNode(std::string::iterator & it, JsonNode * parentn
 		}
 		else if (token == ":")
 		{
-			token =GetNextToken(it,false);
+			token = GetNextToken(it, false);
 		}
 		else if (token == ",")
 		{
-			token =GetNextToken(it,false);
+			token = GetNextToken(it, false);
 		}
 		else
 		{
 			node->values.push_back(BuildJsonValue(it, node));
-			token =GetNextToken(it,false);
+			token = GetNextToken(it, false);
 		}
-	}			
+	}
 	return node;
 }
 
@@ -1491,7 +1868,7 @@ void JsonLex::GoCommentEnd(std::string::iterator & it, std::string commentstyle)
 				it++;
 				break;
 			}
-			else if (*it == '\r' && *(it+1)=='\n')       //windows style
+			else if (*it == '\r' && *(it + 1) == '\n')       //windows style
 			{
 				it++; it++;
 				break;
@@ -1517,10 +1894,10 @@ void JsonLex::GoCommentEnd(std::string::iterator & it, std::string commentstyle)
 bool JsonLex::TokenIsComment(std::string token)
 {
 	bool bret = false;
-	if (token == "//" || token == "/*" || token == "*/" ||token.at(0) == JsonHash)
+	if (token == "//" || token == "/*" || token == "*/" || token.at(0) == JsonHash)
 	{
 		bret = true;
-	}	
+	}
 	return bret;
 }
 
@@ -1530,8 +1907,8 @@ std::string JsonLex::GetNextToken(std::string::iterator & it, bool tonextJsonDou
 {
 	prevtoken = currenttoken;
 	std::string token;
-	std::string::iterator itstart=it;
-	if(tonextJsonDoubleQuote)
+	std::string::iterator itstart = it;
+	if (tonextJsonDoubleQuote)
 	{
 		if (*it == JsonDoubleQuote)
 			it++;
@@ -1543,14 +1920,14 @@ std::string JsonLex::GetNextToken(std::string::iterator & it, bool tonextJsonDou
 				{
 					if (*(it + 1) == JsonDoubleQuote)
 					{
-						if ((it + 2) != json.end() )
+						if ((it + 2) != json.end())
 						{
-							if((*(it+2)==JsonComma)
-								||(*(it+2)==JsonColon)
-								||(*(it+2)==JsonRightBrace)
-								||(*(it+2)==JsonRightBracket)								
-								||(*(it+2)==JsonSlash)								
-								||isspace(*(it+2)))
+							if ((*(it + 2) == JsonComma)
+								|| (*(it + 2) == JsonColon)
+								|| (*(it + 2) == JsonRightBrace)
+								|| (*(it + 2) == JsonRightBracket)
+								|| (*(it + 2) == JsonSlash)
+								|| isspace(*(it + 2)))
 							{
 								token += *it;
 								it++;
@@ -1630,15 +2007,15 @@ std::string JsonLex::GetNextToken(std::string::iterator & it, bool tonextJsonDou
 			}
 			else
 			{
-				if (*it==JsonDoubleQuote )
+				if (*it == JsonDoubleQuote)
 				{
 					break;
-				}				
+				}
 				else
 				{
 					token += *it;
 					it++;
-				}				
+				}
 			}
 
 		}
@@ -1689,7 +2066,7 @@ std::string JsonLex::GetNextToken(std::string::iterator & it, bool tonextJsonDou
 				{
 					token += (*it);
 				}
-			}			
+			}
 			else if ((*it) == JsonEscapeCharacter)
 			{
 				if (!token.empty())
@@ -1757,7 +2134,7 @@ std::string JsonLex::GetNextToken(std::string::iterator & it, bool tonextJsonDou
 				else
 				{
 					;
-				}				
+				}
 			}
 			else
 			{
@@ -1803,8 +2180,277 @@ bool JsonLex::AssignStringToJsonValue(JsonValue * value, std::string & text)
 		{
 			value->type = VALUE_NUM_INT;
 			value->vi = atoi(text.c_str());
-		}	
+		}
 	}
 	return false;
 }
 
+bool JsonNode::GetValue(const char * name, bool & value)
+{
+	bool bret = false;
+	JsonValue *val;
+	if (GetValue(name, &val))
+	{
+		if (val->type == VALUE_BOOL)
+		{
+			value = val->vbl;
+			bret = true;
+		}
+	}
+	return bret;
+}
+
+bool JsonNode::SetValue(const char * name, bool value)
+{
+	bool bret = false;
+	JsonValue *val = new JsonValue;
+	val->type = VALUE_BOOL;
+	val->vbl = value;
+	if (val->vbl)
+	{
+		val->str = AToU("true");
+	}
+	else
+	{
+		val->str = AToU("false");
+	}
+	bret = SetValue(name, val);
+	return bret;
+}
+
+bool JsonNode::SetNullValue(const char * name)
+{
+	bool bret = false;
+	JsonValue *val = new JsonValue;
+	val->type = VALUE_NULL;
+	val->str = AToU("null");
+	bret = SetValue(name, val);
+	return bret;
+}
+
+bool JsonNode::GetValue(const char * name, JsonValue ** jsvalue)
+{
+	bool bret = false;
+	for (size_t i = 0; i < values.size(); i++)
+	{
+		if (values.at(i)->name == name)
+		{
+			JsonValue * jsvalue1 = values.at(i);
+			*jsvalue = jsvalue1;
+			bret = true;
+			break;
+		}
+	}
+	return bret;;
+}
+
+bool JsonNode::SetValue(const char * name, JsonValue * newjsvalue)
+{
+	bool bret = false;
+	for (size_t i = 0; i < values.size(); i++)
+	{
+		if (values.at(i)->name == name)
+		{
+			JsonValue * jsvalue = values.at(i);
+			newjsvalue->name = jsvalue->name;
+			values.at(i) = newjsvalue;
+			delete jsvalue;
+
+			bret = true;
+			break;
+		}
+	}
+	return bret;
+}
+
+bool JsonNode::DelValue(const char * name)
+{
+	bool bret = false;
+	for (size_t i = 0; i < values.size(); i++)
+	{
+		if (values.at(i)->name == name)
+		{
+			JsonValue * jsvalue = values.at(i);
+			values.erase(values.begin() + i);
+			delete jsvalue;
+
+			bret = true;
+			break;
+		}
+	}
+	return bret;
+}
+
+bool JsonNode::AppendValue(char * name, char * value)
+{
+	bool bret = false;
+	JsonValue * val = new JsonValue;
+	if (val)
+	{
+		val->type = VALUE_STRING;
+		val->name = AToU(name);
+		val->str = AToU(value);
+		this->values.push_back(val);
+	}
+
+	return bret;
+}
+
+bool JsonNode::AppendValue(char * name, int value)
+{
+	bool bret = false;
+
+	JsonValue * val = new JsonValue;
+	if (val)
+	{
+		val->type = VALUE_NUM_INT;
+		val->name = AToU(name);
+		val->vi = value;
+		char buffer[256] = { 0 };
+		sprintf(buffer, "%d", value);
+		val->str = AToU(buffer);
+		this->values.push_back(val);
+	}
+
+
+	return bret;
+}
+
+bool JsonNode::AppendValue(char * name, unsigned int value)
+{
+	bool bret = false;
+	JsonValue * val = new JsonValue;
+	if (val)
+	{
+		val->type = VALUE_NUM_INT;
+		val->name = AToU(name);
+		val->vi = value;
+		char buffer[256] = { 0 };
+		sprintf(buffer, "%u", value);
+		val->str = AToU(buffer);
+		this->values.push_back(val);
+	}
+	return bret;
+}
+
+bool JsonNode::AppendValue(char * name, __int64 value)
+{
+	bool bret = false;
+	JsonValue * val = new JsonValue;
+	if (val)
+	{
+		val->type = VALUE_NUM_INT;
+		val->name = AToU(name);
+		val->vi64 = value;
+		char buffer[256] = { 0 };
+		sprintf(buffer, "%I64d", value);
+		val->str = AToU(buffer);
+		this->values.push_back(val);
+	}
+
+	return bret;
+}
+
+bool JsonNode::AppendValue(char * name, unsigned __int64 value)
+{
+	bool bret = false;
+	JsonValue * val = new JsonValue;
+	if (val)
+	{
+		val->type = VALUE_NUM_INT;
+		val->name = AToU(name);
+		val->vui64 = value;
+		char buffer[256] = { 0 };
+		sprintf(buffer, "%I64u", value);
+		val->str = AToU(buffer);
+		this->values.push_back(val);
+	}
+
+	return bret;
+}
+
+bool JsonNode::AppendValue(char * name, double value)
+{
+	bool bret = false;
+	JsonValue * val = new JsonValue;
+	if (val)
+	{
+		val->type = VALUE_NUM_FLOAT;
+		val->vd = value;
+		val->name = AToU(name);
+		char buffer[256] = { 0 };
+		sprintf(buffer, "%f", value);
+		val->str = AToU(buffer);
+		this->values.push_back(val);
+	}
+
+	return bret;
+}
+
+bool JsonNode::AppendValue(char * name, bool value)
+{
+	bool bret = false;
+
+	JsonValue * val = new JsonValue;
+	if (val)
+	{
+		val->type = VALUE_BOOL;
+		val->vbl = value;
+		val->name = name;
+		if (val->vbl)
+		{
+			val->str = AToU("true");
+		}
+		else
+		{
+			val->str = AToU("false");
+		}
+		this->values.push_back(val);
+	}
+
+	return bret;
+}
+
+bool JsonNode::AppendNullValue(char * name)
+{
+	bool bret = false;
+	JsonValue * val = new JsonValue;
+	if (val)
+	{
+		val->name = AToU(name);
+		val->type = VALUE_NULL;
+		val->str = AToU("null");
+		this->values.push_back(val);
+	}
+	return bret;
+}
+
+bool JsonNode::AppendObjectValue(char * name, JsonNode * obj)
+{
+	bool bret = false;
+	JsonValue * val = new JsonValue;
+	if (val)
+	{
+		val->type = VALUE_OBJECT;
+		val->name = AToU(name);
+		val->node = obj;
+		this->values.push_back(val);
+	}
+
+	return bret;
+}
+
+bool JsonNode::AppendArrayValue(char * name, JsonNode * objarray)
+{
+	bool bret = false;
+	JsonValue * val = new JsonValue;
+	if (val)
+	{
+		val->type = VALUE_ARRAY;
+		val->name = AToU(name);
+		val->node = objarray;
+		this->values.push_back(val);
+	}
+	return bret;
+
+}
