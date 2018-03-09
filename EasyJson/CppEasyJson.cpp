@@ -1141,6 +1141,19 @@ bool JsonNode::DelValue(int index)
 	}
 	return bret;
 }
+bool JsonNode::IsArray()
+{
+	return (NODE_ARRAY==type);
+}
+JsonNode * JsonNode::GetNode(char * name)
+{
+	JsonValue * val = GetValue(name);
+	if (val)
+	{
+		return val->node;
+	}
+	return NULL;
+}
 bool JsonNode::GetValue(const char * name, char * value, size_t valuesize)
 {
 	bool bret = false;

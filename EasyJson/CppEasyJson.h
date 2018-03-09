@@ -210,6 +210,8 @@ public:
 	bool AppendArrayValue(char * name, JsonNode *objarray);
 
 	bool DelValue(int index);
+	bool IsArray();
+	JsonNode * GetNode(char * name);
 
 
 };
