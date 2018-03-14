@@ -1907,9 +1907,12 @@ void JsonLex::GoCommentEnd(std::string::iterator & it, std::string commentstyle)
 bool JsonLex::TokenIsComment(std::string token)
 {
 	bool bret = false;
-	if (token == "//" || token == "/*" || token == "*/" || token.at(0) == JsonHash)
+	if (token.length() > 0)
 	{
-		bret = true;
+		if (token == "//" || token == "/*" || token == "*/" || token.at(0) == JsonHash)
+		{
+			bret = true;
+		}
 	}
 	return bret;
 }
@@ -1924,7 +1927,11 @@ std::string JsonLex::GetNextToken(std::string::iterator & it, bool tonextJsonDou
 	if (tonextJsonDoubleQuote)
 	{
 		if (*it == JsonDoubleQuote)
+		{
 			it++;
+			token = currenttoken = "";
+			return token;
+		}			
 		while (it != json.end())
 		{
 			if (*it == JsonEscapeCharacter)
