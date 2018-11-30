@@ -200,9 +200,16 @@ bool CppEasyJson::SetValue(const char* nodepath, char * value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
-	val->type = VALUE_STRING;
-	val->str = AToU(value);
-	bret = SetValue(nodepath, val);
+	if (val)
+	{
+		val->type = VALUE_STRING;
+		val->str = AToU(value);
+		bret = SetValue(nodepath, val);
+		if (!bret)
+		{
+			delete val;
+		}
+	}
 	return bret;
 }
 bool  CppEasyJson::GetValue(const char* nodepath, std::string & value)
@@ -237,12 +244,19 @@ bool  CppEasyJson::SetValue(const char* nodepath, __int64  value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
-	val->type = VALUE_NUM_INT;
-	val->vi = value;
-	char buffer[256] = { 0 };
-	sprintf(buffer, "%I64d", value);
-	val->str = AToU(buffer);
-	bret = SetValue(nodepath, val);
+	if (val)
+	{
+		val->type = VALUE_NUM_INT;
+		val->vi = value;
+		char buffer[256] = { 0 };
+		sprintf(buffer, "%I64d", value);
+		val->str = AToU(buffer);
+		bret = SetValue(nodepath, val);
+		if (!bret)
+		{
+			delete val;
+		}
+	}	
 	return bret;
 }
 bool  CppEasyJson::GetValue(const char* nodepath, unsigned __int64  & value)
@@ -263,12 +277,19 @@ bool  CppEasyJson::SetValue(const char* nodepath, unsigned __int64  value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
-	val->type = VALUE_NUM_INT;
-	val->vi = value;
-	char buffer[256] = { 0 };
-	sprintf(buffer, "%I64u", value);
-	val->str = AToU(buffer);
-	bret = SetValue(nodepath, val);
+	if (val)
+	{
+		val->type = VALUE_NUM_INT;
+		val->vi = value;
+		char buffer[256] = { 0 };
+		sprintf(buffer, "%I64u", value);
+		val->str = AToU(buffer);
+		bret = SetValue(nodepath, val);
+		if (!bret)
+		{
+			delete val;
+		}
+	}
 	return bret;
 }
 bool CppEasyJson::GetValue(const char* nodepath, unsigned int  & value)
@@ -289,12 +310,19 @@ bool CppEasyJson::SetValue(const char* nodepath, unsigned int  value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
-	val->type = VALUE_NUM_INT;
-	val->vi = value;
-	char buffer[256] = { 0 };
-	sprintf(buffer, "%u", value);
-	val->str = AToU(buffer);
-	bret = SetValue(nodepath, val);
+	if (val)
+	{
+		val->type = VALUE_NUM_INT;
+		val->vi = value;
+		char buffer[256] = { 0 };
+		sprintf(buffer, "%u", value);
+		val->str = AToU(buffer);
+		bret = SetValue(nodepath, val);
+		if (!bret)
+		{
+			delete val;
+		}
+	}
 	return bret;
 }
 bool CppEasyJson::GetValue(const char * nodepath, int & value)
@@ -315,12 +343,20 @@ bool CppEasyJson::SetValue(const char* nodepath, int  value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
-	val->type = VALUE_NUM_INT;
-	val->vi = value;
-	char buffer[256] = { 0 };
-	sprintf(buffer, "%d", value);
-	val->str = AToU(buffer);
-	bret = SetValue(nodepath, val);
+	if (val)
+	{
+		val->type = VALUE_NUM_INT;
+		val->vi = value;
+		char buffer[256] = { 0 };
+		sprintf(buffer, "%d", value);
+		val->str = AToU(buffer);
+		bret = SetValue(nodepath, val);
+		if (!bret)
+		{
+			delete val;
+		}
+	}
+	
 	return bret;
 }
 bool CppEasyJson::GetValue(const char * nodepath, double & value)
@@ -341,12 +377,20 @@ bool CppEasyJson::SetValue(const char* nodepath, double  value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
-	val->type = VALUE_NUM_FLOAT;
-	val->vd = value;
-	char buffer[256] = { 0 };
-	sprintf(buffer, "%f", value);
-	val->str = AToU(buffer);
-	bret = SetValue(nodepath, val);
+	if (val)
+	{
+		val->type = VALUE_NUM_FLOAT;
+		val->vd = value;
+		char buffer[256] = { 0 };
+		sprintf(buffer, "%f", value);
+		val->str = AToU(buffer);
+		bret = SetValue(nodepath, val);
+		if (!bret)
+		{
+			delete val;
+		}
+	}
+	
 	return bret;
 }
 bool CppEasyJson::GetValue(const char * nodepath, bool & value)
@@ -367,26 +411,40 @@ bool CppEasyJson::SetValue(const char* nodepath, bool  value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
-	val->type = VALUE_BOOL;
-	val->vbl = value;
-	if (val->vbl)
+	if (val)
 	{
-		val->str = AToU("true");
-	}
-	else
-	{
-		val->str = AToU("false");
-	}
-	bret = SetValue(nodepath, val);
+		val->type = VALUE_BOOL;
+		val->vbl = value;
+		if (val->vbl)
+		{
+			val->str = AToU("true");
+		}
+		else
+		{
+			val->str = AToU("false");
+		}
+		bret = SetValue(nodepath, val);
+		if (!bret)
+		{
+			delete val;
+		}
+	}	
 	return bret;
 }
 bool  CppEasyJson::SetNullValue(const char* nodepath)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
-	val->type = VALUE_NULL;
-	val->str = AToU("null");
-	bret = SetValue(nodepath, val);
+	if (val)
+	{
+		val->type = VALUE_NULL;
+		val->str = AToU("null");
+		bret = SetValue(nodepath, val);
+		if (!bret)
+		{
+			delete val;
+		}
+	}
 	return bret;
 }
 bool CppEasyJson::DelValue(const char* nodepath)
@@ -1188,9 +1246,16 @@ bool JsonNode::SetValue(const char * name, char * value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
-	val->type = VALUE_STRING;
-	val->str = AToU(value);
-	bret = SetValue(name, val);
+	if (val)
+	{
+		val->type = VALUE_STRING;
+		val->str = AToU(value);
+		bret = SetValue(name, val);
+		if (!bret)
+		{
+			delete val;
+		}
+	}
 	return bret;
 }
 bool JsonNode::GetValue(const char * name, int & value)
@@ -1211,12 +1276,19 @@ bool JsonNode::SetValue(const char * name, int value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
-	val->type = VALUE_NUM_INT;
-	val->vi = value;
-	char buffer[256] = { 0 };
-	sprintf(buffer, "%d", value);
-	val->str = AToU(buffer);
-	bret = SetValue(name, val);
+	if (val)
+	{
+		val->type = VALUE_NUM_INT;
+		val->vi = value;
+		char buffer[256] = { 0 };
+		sprintf(buffer, "%d", value);
+		val->str = AToU(buffer);
+		bret = SetValue(name, val);
+		if (!bret)
+		{
+			delete val;
+		}
+	}
 	return bret;
 }
 bool JsonNode::GetValue(const char * name, unsigned int & value)
@@ -1237,12 +1309,20 @@ bool JsonNode::SetValue(const char * name, unsigned int value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
-	val->type = VALUE_NUM_INT;
-	val->vi = value;
-	char buffer[256] = { 0 };
-	sprintf(buffer, "%u", value);
-	val->str = AToU(buffer);
-	bret = SetValue(name, val);
+	if (val)
+	{
+		val->type = VALUE_NUM_INT;
+		val->vi = value;
+		char buffer[256] = { 0 };
+		sprintf(buffer, "%u", value);
+		val->str = AToU(buffer);
+		bret = SetValue(name, val);
+		if (!bret)
+		{
+			delete val;
+		}
+	}
+
 	return bret;
 
 }
@@ -1264,14 +1344,20 @@ bool JsonNode::SetValue(const char * name, __int64 value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
-	val->type = VALUE_NUM_INT;
-	val->vi = value;
-	char buffer[256] = { 0 };
-	sprintf(buffer, "%I64d", value);
-	val->str = AToU(buffer);
-	bret = SetValue(name, val);
+	if (val)
+	{
+		val->type = VALUE_NUM_INT;
+		val->vi = value;
+		char buffer[256] = { 0 };
+		sprintf(buffer, "%I64d", value);
+		val->str = AToU(buffer);
+		bret = SetValue(name, val);
+		if (!bret)
+		{
+			delete val;
+		}
+	}
 	return bret;
-
 }
 bool JsonNode::GetValue(const char * name, unsigned __int64 & value)
 {
@@ -1291,14 +1377,20 @@ bool JsonNode::SetValue(const char * name, unsigned __int64 value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
-	val->type = VALUE_NUM_INT;
-	val->vi = value;
-	char buffer[256] = { 0 };
-	sprintf(buffer, "%I64u", value);
-	val->str = AToU(buffer);
-	bret = SetValue(name, val);
+	if (val)
+	{
+		val->type = VALUE_NUM_INT;
+		val->vi = value;
+		char buffer[256] = { 0 };
+		sprintf(buffer, "%I64u", value);
+		val->str = AToU(buffer);
+		bret = SetValue(name, val);
+		if (!bret)
+		{
+			delete val;
+		}
+	}
 	return bret;
-
 }
 bool JsonNode::GetValue(const char * name, double & value)
 {
@@ -1318,14 +1410,20 @@ bool JsonNode::SetValue(const char * name, double value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
-	val->type = VALUE_NUM_FLOAT;
-	val->vd = value;
-	char buffer[256] = { 0 };
-	sprintf(buffer, "%f", value);
-	val->str = AToU(buffer);
-	bret = SetValue(name, val);
+	if (val)
+	{
+		val->type = VALUE_NUM_FLOAT;
+		val->vd = value;
+		char buffer[256] = { 0 };
+		sprintf(buffer, "%f", value);
+		val->str = AToU(buffer);
+		bret = SetValue(name, val);
+		if (!bret)
+		{
+			delete val;
+		}
+	}
 	return bret;
-
 }
 std::string JsonNode::ToWellFormatedString(int & depth)
 {
