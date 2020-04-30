@@ -10,6 +10,11 @@ CppEasyJson 是开放源代码的软件，任何人都可以下载、使用、修改和重新发布，不必担心
 #include <string>
 #include <vector>
 
+#ifdef _WIN32
+typedef signed long long __int64_t;
+typedef unsigned long long __uint64_t;
+#endif
+
 class JsonLex;
 class JsonNode;
 class JsonValue;
@@ -87,10 +92,10 @@ public:
 	bool SetValue(const char* nodepath, int  value);
 	bool GetValue(const char* nodepath, unsigned int  & value);
 	bool SetValue(const char* nodepath, unsigned int  value);
-	bool GetValue(const char* nodepath, __int64 & value);
-	bool SetValue(const char* nodepath, __int64  value);
-	bool GetValue(const char* nodepath, unsigned __int64  & value);
-	bool SetValue(const char* nodepath, unsigned __int64  value);
+	bool GetValue(const char* nodepath, __int64_t & value);
+	bool SetValue(const char* nodepath, __int64_t  value);
+	bool GetValue(const char* nodepath, __uint64_t  & value);
+	bool SetValue(const char* nodepath, __uint64_t  value);
 	bool GetValue(const char* nodepath, double & value);
 	bool SetValue(const char* nodepath, double  value);
 	bool GetValue(const char* nodepath, bool & value);
@@ -114,8 +119,8 @@ public:
 	bool AppendValue(JsonNode * node, char * name, char * value);
 	bool AppendValue(JsonNode * node, char * name, int value);
 	bool AppendValue(JsonNode * node, char * name, unsigned int value);
-	bool AppendValue(JsonNode * node, char * name, __int64 value);
-	bool AppendValue(JsonNode * node, char * name, unsigned __int64 value);
+	bool AppendValue(JsonNode * node, char * name, __int64_t value);
+	bool AppendValue(JsonNode * node, char * name, __uint64_t value);
 	bool AppendValue(JsonNode * node, char * name, double value);
 	bool AppendValue(JsonNode * node, char * name, bool value);
 	bool AppendNullValue(JsonNode * node, char * name);
@@ -157,8 +162,8 @@ public:
 	std::string str;
 	int vi;
 	unsigned int vui;
-	__int64 vi64;
-	unsigned __int64 vui64;
+	__int64_t vi64;
+	__uint64_t vui64;
 	double vd;
 	bool vbl;
 	JsonNode * node;
@@ -185,10 +190,10 @@ public:
 	bool SetValue(const char* name, int  value);
 	bool GetValue(const char* name, unsigned int  & value);
 	bool SetValue(const char* name, unsigned int  value);
-	bool GetValue(const char* name, __int64 & value);
-	bool SetValue(const char* name, __int64  value);
-	bool GetValue(const char* name, unsigned __int64  & value);
-	bool SetValue(const char* name, unsigned __int64  value);
+	bool GetValue(const char* name, __int64_t & value);
+	bool SetValue(const char* name, __int64_t  value);
+	bool GetValue(const char* name, __uint64_t  & value);
+	bool SetValue(const char* name, __uint64_t  value);
 	bool GetValue(const char* name, double & value);
 	bool SetValue(const char* name, double  value);
 	bool GetValue(const char* name, bool & value);
@@ -201,8 +206,8 @@ public:
 	bool AppendValue(char * name, char * value);
 	bool AppendValue(char * name, int value);
 	bool AppendValue(char * name, unsigned int value);
-	bool AppendValue(char * name, __int64 value);
-	bool AppendValue(char * name, unsigned __int64 value);
+	bool AppendValue(char * name, __int64_t value);
+	bool AppendValue(char * name, __uint64_t value);
 	bool AppendValue(char * name, double value);
 	bool AppendValue(char * name, bool value);
 	bool AppendNullValue(char * name);
@@ -212,7 +217,7 @@ public:
 	bool DelValue(int index);
 	bool IsArray();
 	JsonNode * GetNode(char * name);
-
+	bool SetAnyValue(char * name, char * value, JsonValueType type);
 
 };
 

@@ -226,7 +226,7 @@ bool  CppEasyJson::GetValue(const char* nodepath, std::string & value)
 	}
 	return bret;
 }
-bool  CppEasyJson::GetValue(const char* nodepath, __int64 & value)
+bool  CppEasyJson::GetValue(const char* nodepath, __int64_t & value)
 {
 	bool bret = false;
 	JsonValue *val;
@@ -240,7 +240,7 @@ bool  CppEasyJson::GetValue(const char* nodepath, __int64 & value)
 	}
 	return bret;
 }
-bool  CppEasyJson::SetValue(const char* nodepath, __int64  value)
+bool  CppEasyJson::SetValue(const char* nodepath, __int64_t  value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
@@ -259,7 +259,7 @@ bool  CppEasyJson::SetValue(const char* nodepath, __int64  value)
 	}	
 	return bret;
 }
-bool  CppEasyJson::GetValue(const char* nodepath, unsigned __int64  & value)
+bool  CppEasyJson::GetValue(const char* nodepath, __uint64_t  & value)
 {
 	bool bret = false;
 	JsonValue *val;
@@ -273,7 +273,7 @@ bool  CppEasyJson::GetValue(const char* nodepath, unsigned __int64  & value)
 	}
 	return bret;
 }
-bool  CppEasyJson::SetValue(const char* nodepath, unsigned __int64  value)
+bool  CppEasyJson::SetValue(const char* nodepath, __uint64_t  value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
@@ -583,7 +583,7 @@ bool CppEasyJson::AppendValue(JsonNode * node, char * name, char * value)
 	}
 	return bret;
 }
-bool  CppEasyJson::AppendValue(JsonNode * node, char * name, __int64 value)
+bool  CppEasyJson::AppendValue(JsonNode * node, char * name, __int64_t value)
 {
 	bool bret = false;
 	if (node)
@@ -603,7 +603,7 @@ bool  CppEasyJson::AppendValue(JsonNode * node, char * name, __int64 value)
 	}
 	return bret;
 }
-bool  CppEasyJson::AppendValue(JsonNode * node, char * name, unsigned __int64 value)
+bool  CppEasyJson::AppendValue(JsonNode * node, char * name, __uint64_t value)
 {
 	bool bret = false;
 	if (node)
@@ -1212,6 +1212,71 @@ JsonNode * JsonNode::GetNode(char * name)
 	}
 	return NULL;
 }
+bool JsonNode::SetAnyValue(char * name, char * value, JsonValueType type)
+{
+	bool bret = false;
+	//find existed value and replace it
+	for (size_t i = 0; i < values.size(); i++)
+	{
+		if (values.at(i)->name == name)
+		{
+			JsonValue * jsvalue = values.at(i);
+			JsonLex lex;
+			if (VALUE_OBJECT == type || VALUE_ARRAY == type)
+			{
+				JsonNode * njsonnode = NULL;
+				lex.ParseString((const char * )value,strlen(value),&njsonnode);
+				JsonValue * val = new JsonValue;
+				if (val && njsonnode)
+				{
+					val->type = VALUE_OBJECT;
+					val->name = AToU(name);
+					val->node = njsonnode;
+					values[i] = val;
+					bret = true;
+					delete jsvalue;
+				}
+			}
+			else
+			{				
+				std::string strvalue = value;
+				jsvalue->name = name;
+				bret = lex.AssignStringToJsonValue(jsvalue, strvalue);
+			}			
+			break;
+		}
+	}
+	//then append new value
+	if (!bret)
+	{
+		JsonLex lex;
+		if (VALUE_OBJECT == type || VALUE_ARRAY == type)
+		{
+			JsonNode * njsonnode = NULL;
+			lex.ParseString((const char *)value, strlen(value), &njsonnode);
+			JsonValue * val = new JsonValue;
+			if (val && njsonnode)
+			{
+				val->type = VALUE_OBJECT;
+				val->name = AToU(name);
+				val->node = njsonnode;
+				values.push_back(val);
+				bret = true;
+			}
+		}
+		else
+		{
+			JsonValue * val = new JsonValue;
+			if (val)
+			{
+				std::string strvalue = value;
+				val->name = name;
+				bret = lex.AssignStringToJsonValue(val, strvalue);
+			}
+		}
+	}
+	return bret;
+}
 bool JsonNode::GetValue(const char * name, char * value, size_t valuesize)
 {
 	bool bret = false;
@@ -1326,7 +1391,7 @@ bool JsonNode::SetValue(const char * name, unsigned int value)
 	return bret;
 
 }
-bool JsonNode::GetValue(const char * name, __int64 & value)
+bool JsonNode::GetValue(const char * name, __int64_t & value)
 {
 	bool bret = false;
 	JsonValue *val;
@@ -1340,7 +1405,7 @@ bool JsonNode::GetValue(const char * name, __int64 & value)
 	}
 	return bret;
 }
-bool JsonNode::SetValue(const char * name, __int64 value)
+bool JsonNode::SetValue(const char * name, __int64_t value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
@@ -1359,7 +1424,7 @@ bool JsonNode::SetValue(const char * name, __int64 value)
 	}
 	return bret;
 }
-bool JsonNode::GetValue(const char * name, unsigned __int64 & value)
+bool JsonNode::GetValue(const char * name, __uint64_t & value)
 {
 	bool bret = false;
 	JsonValue *val;
@@ -1373,7 +1438,7 @@ bool JsonNode::GetValue(const char * name, unsigned __int64 & value)
 	}
 	return bret;
 }
-bool JsonNode::SetValue(const char * name, unsigned __int64 value)
+bool JsonNode::SetValue(const char * name, __uint64_t value)
 {
 	bool bret = false;
 	JsonValue *val = new JsonValue;
@@ -2112,6 +2177,12 @@ std::string JsonLex::GetNextToken(std::string::iterator & it, bool tonextJsonDou
 						it++;
 						it++;
 					}
+					//else if (*(it + 1) == '#')
+					//{
+					//	token += '#';
+					//	it++;
+					//	it++;
+					//}
 					else if (*(it + 1) == 'u')
 					{
 						token += (*it);
@@ -2451,7 +2522,7 @@ bool JsonNode::AppendValue(char * name, unsigned int value)
 	return bret;
 }
 
-bool JsonNode::AppendValue(char * name, __int64 value)
+bool JsonNode::AppendValue(char * name, __int64_t value)
 {
 	bool bret = false;
 	JsonValue * val = new JsonValue;
@@ -2469,7 +2540,7 @@ bool JsonNode::AppendValue(char * name, __int64 value)
 	return bret;
 }
 
-bool JsonNode::AppendValue(char * name, unsigned __int64 value)
+bool JsonNode::AppendValue(char * name, __uint64_t value)
 {
 	bool bret = false;
 	JsonValue * val = new JsonValue;
