@@ -203,10 +203,10 @@ static inline std::string UToA(std::string sU)
 {
 	return WToA(UTF2W(sU));
 }
-static inline bool IsTextUTF8(const char* str,ULONGLONG length)
+static inline bool IsTextUTF8(const char* str,unsigned long long  length)
 {
-	DWORD nBytes=0;
-	UCHAR chr;
+	unsigned long nBytes=0;
+	unsigned char chr;
 	bool bAllAscii=true; 
 	for(int i=0; i<length; ++i)
 	{

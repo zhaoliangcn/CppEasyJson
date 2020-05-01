@@ -190,7 +190,11 @@ bool CppEasyJson::GetValue(const char * nodepath, char * value, size_t valuesize
 	{
 		if (val->type == VALUE_STRING)
 		{
+#ifdef _WIN32
 			strcpy_s(value, valuesize, val->str.c_str());
+#else
+			strcpy(value,  val->str.c_str());
+#endif
 			bret = true;
 		}
 	}
@@ -1285,7 +1289,11 @@ bool JsonNode::GetValue(const char * name, char * value, size_t valuesize)
 	{
 		if (val->type == VALUE_STRING)
 		{
+#ifdef _WIN32
 			strcpy_s(value, valuesize, val->str.c_str());
+#else
+			strcpy(value,  val->str.c_str());
+#endif
 			bret = true;
 		}
 	}
