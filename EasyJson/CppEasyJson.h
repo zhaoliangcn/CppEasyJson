@@ -19,12 +19,20 @@ class JsonLex;
 class JsonNode;
 class JsonValue;
 #pragma warning(disable:4091)
+#ifdef _WIN32
 typedef enum JsonNodeType
+#else
+enum JsonNodeType
+#endif
 {
 	NODE_OBJECT,
 	NODE_ARRAY,
 };
+#ifdef _WIN32
 typedef enum JsonValueType
+#else
+enum JsonValueType
+#endif
 {
 	VALUE_NUM_INT,
 	VALUE_NUM_FLOAT,
