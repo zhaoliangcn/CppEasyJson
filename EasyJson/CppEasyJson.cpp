@@ -979,9 +979,7 @@ bool CppEasyJson::AppendValue(const char * nodepath, char * name, int value)
 			val->type = VALUE_NUM_INT;
 			val->name = AToU(name);
 			val->vi = value;
-			char buffer[256] = { 0 };
-			sprintf(buffer, "%d", value);
-			val->str = AToU(buffer);
+			val->str = AToU(std::to_string(value));
 			node->values.push_back(val);
 		}
 
@@ -1000,9 +998,7 @@ bool CppEasyJson::AppendValue(const char * nodepath, char * name, double value)
 			val->type = VALUE_NUM_FLOAT;
 			val->vd = value;
 			val->name = AToU(name);
-			char buffer[256] = { 0 };
-			sprintf(buffer, "%f", value);
-			val->str = AToU(buffer);
+			val->str = AToU(std::to_string(value));
 			node->values.push_back(val);
 		}
 	}
@@ -1333,9 +1329,7 @@ bool JsonNode::SetValue(const char * name, int value)
 	{
 		val->type = VALUE_NUM_INT;
 		val->vi = value;
-		char buffer[256] = { 0 };
-		sprintf(buffer, "%d", value);
-		val->str = AToU(buffer);
+		val->str = AToU(std::to_string(value));
 		bret = SetValue(name, val);
 		if (!bret)
 		{
@@ -1366,9 +1360,7 @@ bool JsonNode::SetValue(const char * name, unsigned int value)
 	{
 		val->type = VALUE_NUM_INT;
 		val->vi = value;
-		char buffer[256] = { 0 };
-		sprintf(buffer, "%u", value);
-		val->str = AToU(buffer);
+		val->str = AToU(std::to_string(value));
 		bret = SetValue(name, val);
 		if (!bret)
 		{
@@ -1463,9 +1455,7 @@ bool JsonNode::SetValue(const char * name, double value)
 	{
 		val->type = VALUE_NUM_FLOAT;
 		val->vd = value;
-		char buffer[256] = { 0 };
-		sprintf(buffer, "%f", value);
-		val->str = AToU(buffer);
+		val->str = AToU(std::to_string(value));
 		bret = SetValue(name, val);
 		if (!bret)
 		{
@@ -2479,9 +2469,7 @@ bool JsonNode::AppendValue(char * name, int value)
 		val->type = VALUE_NUM_INT;
 		val->name = AToU(name);
 		val->vi = value;
-		char buffer[256] = { 0 };
-		sprintf(buffer, "%d", value);
-		val->str = AToU(buffer);
+		val->str = AToU(std::to_string(value));
 		this->values.push_back(val);
 	}
 
@@ -2498,9 +2486,7 @@ bool JsonNode::AppendValue(char * name, unsigned int value)
 		val->type = VALUE_NUM_INT;
 		val->name = AToU(name);
 		val->vi = value;
-		char buffer[256] = { 0 };
-		sprintf(buffer, "%u", value);
-		val->str = AToU(buffer);
+		val->str = AToU(std::to_string(value));
 		this->values.push_back(val);
 	}
 	return bret;
