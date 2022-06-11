@@ -252,13 +252,7 @@ bool  CppEasyJson::SetValue(const char* nodepath, __int64_t  value)
 	{
 		val->type = VALUE_NUM_INT;
 		val->vi = value;
-		char buffer[256] = { 0 };
-#ifdef _WIN32
-		sprintf(buffer, "%I64d", value);
-#else
-		sprintf(buffer,"%ld",value);
-#endif
-		val->str = AToU(buffer);
+		val->str = AToU(std::to_string(value));
 		bret = SetValue(nodepath, val);
 		if (!bret)
 		{
@@ -289,13 +283,7 @@ bool  CppEasyJson::SetValue(const char* nodepath, __uint64_t  value)
 	{
 		val->type = VALUE_NUM_INT;
 		val->vi = value;
-		char buffer[256] = { 0 };
-#ifdef _WIN32
-		sprintf(buffer, "%I64u", value);
-#else
-		sprintf(buffer,"%lu",value);
-#endif
-		val->str = AToU(buffer);
+		val->str = AToU(std::to_string(value));
 		bret = SetValue(nodepath, val);
 		if (!bret)
 		{
@@ -606,13 +594,7 @@ bool  CppEasyJson::AppendValue(JsonNode * node, char * name, __int64_t value)
 			val->type = VALUE_NUM_INT;
 			val->name = AToU(name);
 			val->vi64 = value;
-			char buffer[256] = { 0 };
-#ifdef _WIN32
-			sprintf(buffer, "%I64d", value);
-#else
-			sprintf(buffer,"%ld",value);
-#endif
-			val->str = AToU(buffer);
+			val->str = AToU(std::to_string(value));
 			node->values.push_back(val);
 		}
 
@@ -630,13 +612,7 @@ bool  CppEasyJson::AppendValue(JsonNode * node, char * name, __uint64_t value)
 			val->type = VALUE_NUM_INT;
 			val->name = AToU(name);
 			val->vui64 = value;
-			char buffer[256] = { 0 };
-#ifdef _WIN32
-			sprintf(buffer, "%I64u", value);
-#else
-			sprintf(buffer,"%lu",value);
-#endif
-			val->str = AToU(buffer);
+			val->str = AToU(std::to_string(value));
 
 			node->values.push_back(val);
 		}
@@ -655,9 +631,7 @@ bool  CppEasyJson::AppendValue(JsonNode * node, char * name, unsigned int value)
 			val->type = VALUE_NUM_INT;
 			val->name = AToU(name);
 			val->vi = value;
-			char buffer[256] = { 0 };
-			sprintf(buffer, "%u", value);
-			val->str = AToU(buffer);
+			val->str = AToU(std::to_string(value));
 			node->values.push_back(val);
 		}
 
@@ -675,9 +649,7 @@ bool CppEasyJson::AppendValue(JsonNode * node, char * name, int value)
 			val->type = VALUE_NUM_INT;
 			val->name = AToU(name);
 			val->vi = value;
-			char buffer[256] = { 0 };
-			sprintf(buffer, "%d", value);
-			val->str = AToU(buffer);
+			val->str = AToU(std::to_string(value));
 			node->values.push_back(val);
 		}
 
@@ -1438,13 +1410,7 @@ bool JsonNode::SetValue(const char * name, __int64_t value)
 	{
 		val->type = VALUE_NUM_INT;
 		val->vi = value;
-		char buffer[256] = { 0 };
-#ifdef _WIN32
-		sprintf(buffer, "%I64d", value);
-#else
-		sprintf(buffer,"%ld",value);
-#endif
-		val->str = AToU(buffer);
+		val->str = AToU(std::to_string(value));
 		bret = SetValue(name, val);
 		if (!bret)
 		{
@@ -1475,14 +1441,7 @@ bool JsonNode::SetValue(const char * name, __uint64_t value)
 	{
 		val->type = VALUE_NUM_INT;
 		val->vi = value;
-		char buffer[256] = { 0 };
-#ifdef _WIN32
-		sprintf(buffer, "%I64u", value);
-#else 
-		sprintf(buffer,"%ld",value);
-#endif
-
-		val->str = AToU(buffer);
+		val->str = AToU(std::to_string(value));
 		bret = SetValue(name, val);
 		if (!bret)
 		{
@@ -2565,15 +2524,7 @@ bool JsonNode::AppendValue(char * name, __int64_t value)
 		val->type = VALUE_NUM_INT;
 		val->name = AToU(name);
 		val->vi64 = value;
-
-		char buffer[256] = { 0 };
-#ifdef _WIN32
-		sprintf(buffer, "%I64u", value);
-#else 
-		sprintf(buffer,"%ld",value);
-#endif
-
-		val->str = AToU(buffer);
+		val->str = AToU(std::to_string(value));
 		this->values.push_back(val);
 	}
 
@@ -2589,13 +2540,7 @@ bool JsonNode::AppendValue(char * name, __uint64_t value)
 		val->type = VALUE_NUM_INT;
 		val->name = AToU(name);
 		val->vui64 = value;
-		char buffer[256] = { 0 };
-#ifdef _WIN32
-		sprintf(buffer, "%I64u", value);
-#else
-		sprintf(buffer,"%lu",value);
-#endif
-		val->str = AToU(buffer);
+		val->str = AToU(std::to_string(value));
 		this->values.push_back(val);
 	}
 
