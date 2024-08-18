@@ -147,6 +147,7 @@ void Test12()
 	printf("%s\n", cvalue);
 	ejson.GetValue("features[0].geometry.type", cvalue, 256);
 	printf("%s\n", cvalue);
+	printf("%s\n", ejson.ToString().c_str());
 }
 void Test11()
 {
@@ -179,6 +180,7 @@ void Test10()
 	char cvalue[256] = { 0 };
 	ejson.GetValue("key5", cvalue, 256);
 	printf("%s\n", cvalue);
+	printf("%s\n", ejson.ToString().c_str());
 }
 void Test9()
 {
@@ -189,6 +191,7 @@ void Test9()
 	printf("%d\n", value);
 	ejson.GetValue("otherkey", value);
 	printf("%d\n", value);
+	printf("%s\n", ejson.ToString().c_str());
 }
 void Test8()
 {
@@ -197,6 +200,7 @@ void Test8()
 	int value = 0;
 	ejson.GetValue("key.subkey", value);
 	printf("%d\n", value);
+	printf("%s\n", ejson.ToString().c_str());
 }
 void Test7()
 {
@@ -205,6 +209,7 @@ void Test7()
 	char Name[256] = { 0 };
 	ejson.GetValue("key", Name, 256);
 	printf("%s\n", Name);
+	printf("%s\n", ejson.ToString().c_str());
 }
 void Test6()
 {
@@ -213,6 +218,7 @@ void Test6()
 	char Name[256] = { 0 };
 	ejson.GetValue("key", Name, 256);
 	printf("%s\n", Name);
+	printf("%s\n", ejson.ToString().c_str());
 }
 void Test5()
 {
@@ -221,6 +227,7 @@ void Test5()
 	int value = 0;
 	ejson.GetValue("key", value);
 	printf("%d\n", value);
+	printf("%s\n", ejson.ToString().c_str());
 }
 void Test0()
 {
@@ -229,6 +236,7 @@ void Test0()
 	char Name[256] = { 0 };
 	ejson.GetValue("firstName", Name, 256);
 	printf("%s\n", Name);
+	printf("%s\n", ejson.ToString().c_str());
 }
 void Test1()
 {
@@ -237,6 +245,7 @@ void Test1()
 	char Name[256] = { 0 };
 	ejson.GetValue("firstName", Name, 256);
 	printf("%s\n", Name);
+	printf("%s\n", ejson.ToString().c_str());
 }
 void Test2()
 {
@@ -262,13 +271,15 @@ void Test2()
 	printf("%s\n", Name);
 	ejson.GetValue("people[2].email", Name, 256);
 	printf("%s\n", Name);
-	ejson.GetValue("people[3].email", Name, 256);
-	printf("%s\n", Name);
+	if(ejson.GetValue("people[3].email", Name, 256))
+		printf("%s\n", Name);
+	printf("%s\n", ejson.ToString().c_str());
 }
 void Test3()
 {
 	CppEasyJson ejson;
 	ejson.ParseString(JSONSTRING4);
+	printf("%s\n", ejson.ToString().c_str());
 	char Name[256] = { 0 };
 	//ejson.GetValue("name", Name, 256);
 	//printf("%s\n", Name);
@@ -285,6 +296,7 @@ void Test33()
 	char Name[256] = { 0 };
 	//ejson.GetValue("province.[0].cities.city.[0].harbin", Name, 256);
 	//printf("%s\n", Name);
+	printf("%s\n", ejson.ToString().c_str());
 	ejson.GetValue("province[0].name", Name, 256);
 	printf("%s\n", Name);
 	ejson.GetValue("province[1].name", Name, 256);
@@ -350,8 +362,8 @@ void TestJsonFile()
 int main()
 {
 //	TestJsonFile();
-	Test19();
-	Test25();
+//	Test19();
+	//Test25();
 	//Test24();
 	//Test23();
 	//Test22();
@@ -359,32 +371,34 @@ int main()
 	//Test20();
 	//Test19();
 	//Test15();
-	//Test11();
+	//
 	/*
 	//Test18();
 	Test17();
 	Test16();
-	
-	///
-	Test0();
-	Test1();
-	Test2();
-	Test3();
-	Test5();
-	Test6();
-	////Test7();
-	Test8();
-	Test9();
-	Test10();
-	Test33();
-	
-	Test12();
-	Test13();
-	Test14();
+	Test13();	
 	*/
 	
-	
-	
+	//OK	
+	//Test5();
+	//Test6();
+	//Test0();
+	//Test1();	
+	//Test2();
+
+	//Test3();
+	//Test7();
+	//Test8();
+	//Test9();
+	//Test10();
+	//Test11();
+	//Test12();
+	//Test14();
+	//Test33();
+
+
+
+	Test20();
     return 0;
 }
 

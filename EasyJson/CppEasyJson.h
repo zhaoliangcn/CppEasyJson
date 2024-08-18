@@ -16,18 +16,9 @@ typedef unsigned long long __uint64_t;
 #endif
 
 class JsonLex;
-class JsonNode;
+
 class JsonValue;
 #pragma warning(disable:4091)
-#ifdef _WIN32
-typedef enum JsonNodeType
-#else
-enum JsonNodeType
-#endif
-{
-	NODE_OBJECT,
-	NODE_ARRAY,
-};
 #ifdef _WIN32
 typedef enum JsonValueType
 #else
@@ -69,9 +60,9 @@ class JsonLex
 public:
 	JsonLex();
 	~JsonLex();
-	bool ParseString(const char * jsonstring, int len, JsonNode **root);
-	JsonValue *  BuildJsonValue(std::string::iterator& it, JsonNode * parentnode);
-	JsonNode *  BulidJsonNode(std::string::iterator& it, JsonNode * parentnode, JsonNodeType nodetype);
+	bool ParseString(const char * jsonstring, int len, JsonValue**root);
+	JsonValue *  BuildJsonValue(std::string::iterator& it);
+	JsonValue* BuildJsonNodeValue(std::string::iterator& it, JsonValue* parentnode, JsonValueType nodetype);
 	void GoCommentEnd(std::string::iterator& it, std::string commentstyle);
 	bool TokenIsComment(std::string token);
 	std::string GetNextToken(std::string::iterator& it, bool tonextJsonDoubleQuote);
@@ -112,7 +103,7 @@ public:
 	bool GetValue(const char* nodepath, JsonValue ** jsvalue);
 	bool SetValue(const char* nodepath, JsonValue * newjsvalue);
 	bool DelValue(const char* nodepath);
-	JsonNode * GetNode(const char* nodepath);
+	JsonValue * GetNode(const char* nodepath);
 	bool AppendValue(const char* nodepath, char * name, char * value);
 	bool AppendValue(const char* nodepath, char * name, int value);
 	bool AppendValue(const char* nodepath, char * name, double value);
@@ -124,38 +115,38 @@ public:
 
 
 	//按节点逐层访问方式
-	bool AppendValue(JsonNode * node, char * name, char * value);
-	bool AppendValue(JsonNode * node, char * name, int value);
-	bool AppendValue(JsonNode * node, char * name, unsigned int value);
-	bool AppendValue(JsonNode * node, char * name, __int64_t value);
-	bool AppendValue(JsonNode * node, char * name, __uint64_t value);
-	bool AppendValue(JsonNode * node, char * name, double value);
-	bool AppendValue(JsonNode * node, char * name, bool value);
-	bool AppendNullValue(JsonNode * node, char * name);
-	bool AppendObjectValue(JsonNode * node, char * name, JsonNode *obj);
-	bool AppendArrayValue(JsonNode * node, char * name, JsonNode *objarray);
-	JsonValue *  GetValue(JsonNode * node, char * name);
-	JsonValue *  GetValue(JsonNode * node, int index);
-	bool DelValue(JsonNode * node, char * name);
-	bool DelValue(JsonNode * node, int index);
+	bool AppendValue(JsonValue * node, char * name, char * value);
+	bool AppendValue(JsonValue * node, char * name, int value);
+	bool AppendValue(JsonValue * node, char * name, unsigned int value);
+	bool AppendValue(JsonValue * node, char * name, __int64_t value);
+	bool AppendValue(JsonValue * node, char * name, __uint64_t value);
+	bool AppendValue(JsonValue * node, char * name, double value);
+	bool AppendValue(JsonValue * node, char * name, bool value);
+	bool AppendNullValue(JsonValue * node, char * name);
+	bool AppendObjectValue(JsonValue * node, char * name, JsonValue *obj);
+	bool AppendArrayValue(JsonValue * node, char * name, JsonValue *objarray);
+	JsonValue *  GetValue(JsonValue * node, char * name);
+	JsonValue *  GetValue(JsonValue * node, int index);
+	bool DelValue(JsonValue * node, char * name);
+	bool DelValue(JsonValue * node, int index);
 
 
 	CppEasyJson & operator = (CppEasyJson & fromjson);
-	CppEasyJson & operator = (JsonNode * fromjsonnode);
+	CppEasyJson & operator = (JsonValue * fromJsonValue);
 
-	static JsonNode *  CreateJsonNode(JsonNodeType type);
-	JsonNode * GetRoot();
-	bool SetRoot(JsonNode * node);
+	static JsonValue *  CreateJsonValue(JsonValueType type);
+	JsonValue * GetRoot();
+	bool SetRoot(JsonValue * node);
 	std::string ToString();
 	bool SaveToFile(const char *jsonfile);
 	void Release();
 	void WellFormat(std::string &jsoncontent);
 
 private:
-	JsonNode * FindNodeInternal(std::string path, JsonNode * parentnode, int &index, std::string &keyname);
+	JsonValue* FindNodeInternal(std::string path, JsonValue* parentnode, int &index, std::string &keyname);
 	std::string jsoncontent;
 	JsonLex jsonlex;
-	JsonNode *jsonroot;
+	JsonValue*jsonroot;
 };
 
 class JsonValue
@@ -165,6 +156,8 @@ public:
 	~JsonValue();
 	std::string ToString();
 	std::string ToWellFormatedString(int &depth);
+	bool IsArray();
+	int GetArraySize();
 	JsonValueType type;
 	std::string name;
 	std::string str;
@@ -174,58 +167,7 @@ public:
 	__uint64_t vui64;
 	double vd;
 	bool vbl;
-	JsonNode * node;
-
-};
-
-
-class JsonNode
-{
-public:
-	JsonNode();
-	~JsonNode();
-	std::string toString();
-	std::string ToWellFormatedString(int &depth);
-	JsonValues values;
-	JsonNodeType type;
-	int GetArraySize();
-	JsonValue *  GetValue(char * name);
-	JsonValue *  GetValue(int index);
-	bool GetValue(const char* name, char * value, size_t valuesize);
-	bool GetValue(const char* name, std::string& value);
-	bool SetValue(const char* name, char * value);
-	bool GetValue(const char* name, int & value);
-	bool SetValue(const char* name, int  value);
-	bool GetValue(const char* name, unsigned int  & value);
-	bool SetValue(const char* name, unsigned int  value);
-	bool GetValue(const char* name, __int64_t & value);
-	bool SetValue(const char* name, __int64_t  value);
-	bool GetValue(const char* name, __uint64_t  & value);
-	bool SetValue(const char* name, __uint64_t  value);
-	bool GetValue(const char* name, double & value);
-	bool SetValue(const char* name, double  value);
-	bool GetValue(const char* name, bool & value);
-	bool SetValue(const char* name, bool  value);
-	bool SetNullValue(const char* name);
-	bool GetValue(const char* name, JsonValue ** jsvalue);
-	bool SetValue(const char* name, JsonValue * newjsvalue);
-	bool DelValue(const char* name);
-
-	bool AppendValue(char * name, char * value);
-	bool AppendValue(char * name, int value);
-	bool AppendValue(char * name, unsigned int value);
-	bool AppendValue(char * name, __int64_t value);
-	bool AppendValue(char * name, __uint64_t value);
-	bool AppendValue(char * name, double value);
-	bool AppendValue(char * name, bool value);
-	bool AppendNullValue(char * name);
-	bool AppendObjectValue(char * name, JsonNode *obj);
-	bool AppendArrayValue(char * name, JsonNode *objarray);
-
-	bool DelValue(int index);
-	bool IsArray();
-	JsonNode * GetNode(char * name);
-	bool SetAnyValue(char * name, char * value, JsonValueType type);
+	JsonValues * values;
 
 };
 
